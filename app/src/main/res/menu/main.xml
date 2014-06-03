@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:EZRestock="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/action_email"
+        android:title="Email"
+        android:icon="@android:drawable/sym_action_email"
+        EZRestock:showAsAction="ifRoom" />
+</menu> 

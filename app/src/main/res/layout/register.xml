@@ -1,0 +1,67 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="${packageName}.${activityClass}"
+    android:background="#FFFFFF">
+    <ImageView
+        android:layout_margin="1dp"
+        android:background="@drawable/ic_title"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" />
+    <ImageView
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="50dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_register_explain"
+        android:id="@+id/imageView" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_marginTop="20dp"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/imageView"
+        android:layout_alignRight="@+id/imageView"
+        android:layout_below="@+id/imageView">
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/str_company_name"
+            android:textSize="22dp"
+            android:textColor="#000000"/>
+        <EditText
+            android:maxLength="15"
+            android:singleLine="true"
+            android:id="@+id/et_register_company_name"
+            android:layout_marginTop="5dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22dp" />
+        <TextView
+            android:layout_marginTop="50dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textColor="#000000"
+            android:textSize="22dp"
+            android:text="@string/str_branch_number"/>
+        <EditText
+            android:id="@+id/et_register_branch_number"
+            android:maxLength="15"
+            android:singleLine="true"
+            android:layout_marginTop="5dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textSize="22dp"/>
+        <Button
+            android:id="@+id/btn_register_star"
+            android:layout_marginTop="50dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#000000"
+            android:textColor="#FFFFFF"
+            android:textSize="24dp"
+            android:text="STAR >"/>
+    </LinearLayout>
+</RelativeLayout>
