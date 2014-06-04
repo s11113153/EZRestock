@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">EZRestock</string>
-    <string name="str_company_name">Company Name:</string>
-    <string name="str_branch_number">Branch Number:</string>
+    <string name="company_name">Company Name:</string>
+    <string name="branch_number">Branch Number:</string>
     <string name="action_mail">Mail</string>
     <string name="scan">SCAN</string>
+    <string name="text_color">22sp</string>
 </resources>

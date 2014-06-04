@@ -18,50 +18,49 @@ import java.util.regex.PatternSyntaxException;
 
 public class RegisterActivity extends Activity {
     private String TAG = getClass().getName();
-
     // declare layout widget
-    private Button btnStar = null;
-    private EditText etCompanyName = null;
-    private EditText etBranchNumber = null;
+    private Button mButtonStar = null;
+    private EditText mEditTextCompanyName = null;
+    private EditText mEditTextBranchNumber = null;
 
-    private SharedPreferences sharedpreferences = null;
+    private static SharedPreferences mSharedPreferences = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.register);
-        sharedpreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        setContentView(R.layout.activity_register);
+        mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
 
-        // initial widget
-        btnStar = (Button) findViewById(R.id.btn_register_star);
-        etCompanyName = (EditText) findViewById(R.id.et_register_company_name);
-        etBranchNumber = (EditText) findViewById(R.id.et_register_branch_number);
+        // initial
+        mButtonStar = (Button) findViewById(R.id.mButtonStar);
+        mEditTextCompanyName = (EditText) findViewById(R.id.mEditTextCompanyName);
+        mEditTextBranchNumber = (EditText) findViewById(R.id.mEditTextBranchNumber);
 
-        btnStar.setOnClickListener(new View.OnClickListener() {
+        mButtonStar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Boolean mFormatCurrent = true;
-                String str_CompanyName = etCompanyName.getText().toString().trim();
-                String str_BranchNumber = etBranchNumber.getText().toString().trim();
+                Boolean currentFormat = true;
+                String companyName = mEditTextCompanyName.getText().toString().trim();
+                String branchNumber = mEditTextBranchNumber.getText().toString().trim();
 
                 try {
-                    SharedPreferences.Editor editor = sharedpreferences.edit();
-                    if (null != str_CompanyName && !str_CompanyName.equals("")) {
-                        if (strFilter(str_CompanyName)) {
-                            editor.putString("COMPANYNAME", str_CompanyName);
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    if (null != companyName && ! companyName.equals("")) {
+                        if (strFilter(companyName)) {
+                            editor.putString("COMPANYNAME", companyName);
                         }else {
-                            mFormatCurrent = false;
+                            currentFormat = false;
                         }
-                        if (null != str_BranchNumber && ! str_BranchNumber.equals("")) {
-                            if (strFilter(str_BranchNumber)) {
-                                editor.putString("BRANCHNUMBER", str_BranchNumber);
+                        if (null != branchNumber && ! branchNumber.equals("")) {
+                            if (strFilter(branchNumber)) {
+                                editor.putString("BRANCHNUMBER", branchNumber);
                             }else {
-                                mFormatCurrent = false;
+                                currentFormat = false;
                             }
                         }
 
-                        if (!mFormatCurrent) { // show message for error
+                        if (!currentFormat) { // show message for error
                             final AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
                             builder.setTitle("Format Error");
                             builder.setMessage("only English & Chinese & _");
@@ -74,9 +73,8 @@ public class RegisterActivity extends Activity {
                             startActivity(intent);
                         }
                     }else {
-                        // no input
+                        // no input , no response
                     }
-
                 }catch (PatternSyntaxException e) {
                     Log.d(TAG, "PatternSyntaxException ..");
                 }
@@ -84,7 +82,7 @@ public class RegisterActivity extends Activity {
         });
     }
 
-    /* Use only Chinese && English && _ Character */
+    /* only uses Chinese && English && _ Character */
     private boolean strFilter(String str) throws PatternSyntaxException {
         String regex = "^[a-zA-Z0-9_\u4e00-\u9fa5]+$";
         Pattern pattern = Pattern.compile(regex);

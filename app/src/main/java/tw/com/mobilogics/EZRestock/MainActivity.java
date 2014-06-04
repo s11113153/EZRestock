@@ -28,70 +28,78 @@ import java.util.LinkedList;
 import java.util.Locale;
 
 public class MainActivity extends ActionBarActivity {
-    private SharedPreferences sharedpreferences = null;
-    private TextView tvTitle = null;
-    private EditText etQuantity = null;
-    private EditText etInventory = null;
-    private EditText etScanNumber = null;
-    private Button btnScan = null;
-    private ListView listView = null;
-    private FocusChange focusChange = new FocusChange();
+    private SharedPreferences mSharedPreferences = null;
+    private EditText mEditTextQuantity = null;
+    private EditText mEditTextInventory = null;
+    private EditText mEditTextScanNumber = null;
+    private Button mButtonScan = null;
+    private ListView mListView = null;
+    private FocusChange focusChange = new FocusChange(); // will edit
     private tw.com.mobilogics.EZRestock.dbHelper dbHelper = null;
 
     private LayoutInflater mInflater;
     private ListAdapter listAdapter = new ListAdapter();
-    private LinkedList linkedList = new LinkedList();
+    private static LinkedList mLinkedList = new LinkedList();
 
     private long mId = -1;
-    private final String TableName = "Management";
+    private final String mTableName = "Management";
+
+    private SQLiteDatabase mSQLiteDatabaseWrite = null;
+    private SQLiteDatabase mSQLiteDatabaseRead = null;
+    private final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
         initial();
-        loadTitle();
+        openDB(getCompanyName());
+        mSQLiteDatabaseWrite = dbHelper.getWritableDatabase();
+        mSQLiteDatabaseRead = dbHelper.getReadableDatabase();
+        mEditTextScanNumber.requestFocus(); // Default First Focus
+        loadActivityTitle();
 
-        btnScan.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mButtonScan.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(btnScan.getWindowToken(), 0);
+                imm.hideSoftInputFromWindow(mButtonScan.getWindowToken(), 0);
                 if (hasFocus) {
-                    btnScan.performClick();
+                    mButtonScan.performClick();
                 }
             }
         });
-        btnScan.setOnClickListener(new View.OnClickListener() {
+        mButtonScan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if ( ! getScanNumber().equals("") && ! getQuantity().equals("") && !getInventory().equals("")) {
-                    Double mQuantity = Double.parseDouble(etQuantity.getText().toString().trim());
-                    Double mInventory = Double.parseDouble(etInventory.getText().toString().trim());
+                    Double mQuantity = Double.parseDouble(
+                            mEditTextQuantity.getText().toString().trim());
+                    Double mInventory = Double.parseDouble(
+                            mEditTextInventory.getText().toString().trim());
                     String mSelect = dbSelect(getScanNumber());
 
                     if (0 == mQuantity && 0 == mInventory) {// According to etScanNumber value , Select etQuantity && etInventory
-                        if (mSelect.equals("")) { // Cancel Action
-                            return;
+                        if (mSelect.equals("")) {
+                            // Cancel Action
                         } else {// According to etQuantity && etInventory , show values of Existing database
                             String [] mResult = mSelect.split("_");
-                            etQuantity.setText(mResult[1]);
-                            etInventory.setText(mResult[2]);
-                            etQuantity.requestFocus();
-                            setListData();
+                            mEditTextQuantity.setText(mResult[1]);
+                            mEditTextInventory.setText(mResult[2]);
+                            mEditTextQuantity.requestFocus();
+                            refreshData();
                             showListOrderBySelect(getScanNumber());
-                            listView.setAdapter(listAdapter);
+                            mListView.setAdapter(listAdapter);
                         }
                     }else {// Maybe Action Insert OR Update
                         if (mSelect.equals("")) {//Execution insert
                             dbInsert(getScanNumber(),mQuantity, mInventory);
-                            setListData();
-                            listView.setAdapter(listAdapter);
+                            refreshData();
+                            mListView.setAdapter(listAdapter);
                         }else {//Execution update
                             dbUpdate(getSelectId());
-                            setListData();
-                            listView.setAdapter(listAdapter);
+                            refreshData();
+                            mListView.setAdapter(listAdapter);
                         }
                     }
                 }else {
@@ -102,48 +110,45 @@ public class MainActivity extends ActionBarActivity {
     }
     private void initial() {
         mInflater =  (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
-        sharedpreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
-        openDB(getCompanyName());
+        mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        mEditTextQuantity  =  (EditText) findViewById(R.id.mEditTextQuantity);
+        mEditTextInventory =  (EditText) findViewById(R.id.mEditTextInventory);
+        mEditTextScanNumber = (EditText) findViewById(R.id.mEditTextScanNumber);
+        mButtonScan = (Button) findViewById(R.id.mButtonScan);
 
-        tvTitle = (TextView)findViewById(R.id.tv_title);
-        etQuantity = (EditText) findViewById(R.id.et_quantity);
-        etInventory = (EditText) findViewById(R.id.et_inventory);
-        etScanNumber = (EditText) findViewById(R.id.et_scan_number);
-        btnScan = (Button) findViewById(R.id.btn_scan);
-        btnScan.setFocusableInTouchMode(true);
-        btnScan.setInputType(InputType.TYPE_NULL);
-        listView = (ListView) findViewById(R.id.listview);
-        etScanNumber.requestFocus();
-        etQuantity.setOnFocusChangeListener(focusChange);
-        etInventory.setOnFocusChangeListener(focusChange);
+        mButtonScan.setFocusableInTouchMode(true);
+        mButtonScan.setInputType(InputType.TYPE_NULL);
+        mListView = (ListView) findViewById(R.id.mListView);
+        mEditTextQuantity.setOnFocusChangeListener(focusChange);
+        mEditTextInventory.setOnFocusChangeListener(focusChange);
     }
-    private void loadTitle() {
-            String strTitle = getCompanyName() + "-" + getBranchNumber().trim();
-            tvTitle.setText(strTitle);
+    private void loadActivityTitle() {
+        setTitle(getCompanyName() + " - " + getBranchNumber().trim());
     }
     private String getBranchNumber() {
-        if (sharedpreferences.contains("BRANCHNUMBER")) {
-            return sharedpreferences.getString("BRANCHNUMBER", "");
+        if (mSharedPreferences.contains("BRANCHNUMBER")) {
+            return mSharedPreferences.getString("BRANCHNUMBER", "");
         }
         return "";
     }
     private String getCompanyName() {
-        if (sharedpreferences.contains("COMPANYNAME")) {
-            return sharedpreferences.getString("COMPANYNAME","");
+        if (mSharedPreferences.contains("COMPANYNAME")) {
+            return mSharedPreferences.getString("COMPANYNAME","");
         }
         return "";
     }
     private String getScanNumber() {
-        return "" + etScanNumber.getText().toString().trim();
+        return "" + mEditTextScanNumber.getText().toString().trim();
     }
     private void openDB(String CompanyName) {
         dbHelper = new dbHelper(MainActivity.this, CompanyName + ".db", 1);
     }
+    private void closeDB(){}
     private String getQuantity() {
-        return "" + etQuantity.getText().toString().trim();
+        return "" + mEditTextQuantity.getText().toString().trim();
     }
     private String getInventory() {
-        return  "" + etInventory.getText().toString().trim();
+        return  "" + mEditTextInventory.getText().toString().trim();
     }
     private void setSelectId(long Id) {
         mId = Id;
@@ -153,8 +158,7 @@ public class MainActivity extends ActionBarActivity {
     }
     private String dbSelect(String ScanNumber) {
         String mQuantity = "" , mInventory = "";
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery(
+        Cursor cursor = mSQLiteDatabaseRead.rawQuery(
             "select Id, ScanNumber, Quantity, Inventory from Management Where ScanNumber=?",
             new String[]{ScanNumber}
         );
@@ -164,7 +168,7 @@ public class MainActivity extends ActionBarActivity {
             mInventory = cursor.getString(3);
         }
         cursor.close();
-        db.close();
+        mSQLiteDatabaseRead.close();
         if (mQuantity.equals("") && mInventory.equals("")) {
             return  "";
         }else {
@@ -172,71 +176,70 @@ public class MainActivity extends ActionBarActivity {
         }
     }
     private String getDateTime() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
         Date date = new Date();
         return dateFormat.format(date);
     }
     private void dbInsert(String mScanNumber, Double mQuantity, Double mInventory) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("ScanNumber", mScanNumber);
         values.put("Quantity"  , mQuantity);
         values.put("Inventory" , mInventory);
         values.put("createTime" , getDateTime());
-        long index = db.insert(TableName, null, values);
+        long index = mSQLiteDatabaseWrite.insert(mTableName, null, values);
         if (index <= -1) {
             Toast.makeText(MainActivity.this, "Insert Into Fail", Toast.LENGTH_LONG).show();
         }
-        db.close();
+        mSQLiteDatabaseWrite.close();
     }
     private void dbUpdate(long Id) {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put("Quantity"  , getQuantity());
         values.put("Inventory" , getInventory());
         values.put("createTime" , getDateTime());
-        int updateCode = db.update(TableName, values, "Id=" + Id, null);
+        int updateCode = mSQLiteDatabaseWrite.update(mTableName, values, "Id=" + Id, null);
         setSelectId(-1);
         if (updateCode <= -1) {
             Toast.makeText(MainActivity.this, "Update Fail", Toast.LENGTH_LONG).show();
         }
+        mSQLiteDatabaseWrite.close();
     }
     private void showListOrderBySelect(String ScanNumber) {
         String tmpContent = "";
-        for (int i=0; i<linkedList.size(); i++) {
-            String compare = linkedList.get(i).toString().split("_")[0];
+        for (int i=0; i<mLinkedList.size(); i++) {
+            String compare = mLinkedList.get(i).toString().split("_")[0];
             if (compare.equals(ScanNumber)) {
-                tmpContent = linkedList.get(i).toString();
-                linkedList.remove(i);
+                tmpContent = mLinkedList.get(i).toString();
+                mLinkedList.remove(i);
             }
         }
-        linkedList.addFirst(tmpContent);
+        mLinkedList.addFirst(tmpContent);
     }
-    private void setListData() {
-        linkedList.clear();
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor cursor = db.rawQuery("SELECT ScanNumber, Quantity, Inventory, createTime" +
-            " FROM " + TableName + " ORDER BY datetime(createTime) DESC", null);
+
+    private void refreshData() {
+        mLinkedList.clear();
+        Cursor cursor = mSQLiteDatabaseRead.rawQuery("SELECT ScanNumber, Quantity, Inventory, createTime" +
+            " FROM " + mTableName + " ORDER BY datetime(createTime) DESC", null);
         int count = 0;
         while (cursor.moveToNext()) {
             String mQuery = cursor.getString(0) + "_" + cursor.getString(1) + "_" + cursor.getString(2) + "_" +
                     cursor.getString(3);
-            linkedList.add(count++, mQuery);
+            mLinkedList.add(count++, mQuery);
         }
+        mSQLiteDatabaseRead.close();
     }
     private class FocusChange implements View.OnFocusChangeListener {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            if (R.id.et_quantity == v.getId()) {
+            if (R.id.mEditTextQuantity == v.getId()) {
                 if (!hasFocus) {
-                    if (etQuantity.getText().toString().trim().equals("")) {
-                        etQuantity.setText("0.0");
+                    if (mEditTextQuantity.getText().toString().trim().equals("")) {
+                        mEditTextQuantity.setText("0.0");
                     }
                 }
-            } else if (R.id.et_inventory == v.getId()) {
+            } else if (R.id.mEditTextInventory == v.getId()) {
                 if (!hasFocus) {
-                    if (etInventory.getText().toString().trim().equals("")) {
-                        etInventory.setText("0.0");
+                    if (mEditTextInventory.getText().toString().trim().equals("")) {
+                        mEditTextInventory.setText("0.0");
                         //btn request
                     }
                 }
@@ -246,12 +249,12 @@ public class MainActivity extends ActionBarActivity {
     class ListAdapter extends BaseAdapter {
         @Override
         public int getCount() {
-            return linkedList.size();
+            return mLinkedList.size();
         }
 
         @Override
         public Object getItem(int position) {
-            return linkedList.get(position);
+            return mLinkedList.get(position);
         }
 
         @Override
@@ -265,14 +268,13 @@ public class MainActivity extends ActionBarActivity {
             TextView tvScanNumber = (TextView) convertView.findViewById(R.id.row_scan_number);
             TextView tvQuantity = (TextView) convertView.findViewById(R.id.row_quantity);
             TextView tvInventory = (TextView) convertView.findViewById(R.id.row_inventory);
-            String []mQuery = linkedList.get(position).toString().trim().split("_");
+            String []mQuery = mLinkedList.get(position).toString().trim().split("_");
             tvScanNumber.setText(mQuery[0]);
             tvQuantity.setText(mQuery[1]);
             tvInventory.setText(mQuery[2]);
             return convertView;
         }
     }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -281,10 +283,19 @@ public class MainActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (R.id.action_email == item.getItemId()) {
-            Intent intent = new Intent(MainActivity.this, MailActivity.class);
-            startActivity(intent);
+        switch (item.getItemId()) {
+            case R.id.action_email :
+                refreshData();
+                Intent intent = new Intent(MainActivity.this, MailActivity.class);
+                startActivity(intent);
+                break;
+            default:
+                break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public static LinkedList getSelectAllData() {
+        return mLinkedList;
     }
 }
