@@ -81,14 +81,28 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                         editor.putString("BRANCHNUMBER", getBranchNumber());
                     }
                     editor.commit();
+                    mEditTextCompanyName.setText("");
+                    mEditTextBranchNumber.setText("");
                 }
                 break;
             case R.id.mButtonMail :
+                if (null != mLinkedList  && mLinkedList.size() > 0) {
+
+                }else {
+                    // notification database is no data exist
+                }
                 break;
             case R.id.mTextViewVisitHome :
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
                 startActivity(intent);
                 break;
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSharedPreferences = null;
+        finish();
     }
 }

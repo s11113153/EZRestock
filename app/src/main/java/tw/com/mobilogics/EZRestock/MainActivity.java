@@ -115,9 +115,11 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         mSQLiteDatabaseRead = mDBHelper.getReadableDatabase();
         mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
     }
+
     private void loadActivityTitle() {
         setTitle(getCompanyName() + " - " + getBranchNumber().trim());
     }
+
     private String getBranchNumber() {
         if (mSharedPreferences.contains("BRANCHNUMBER")) {
             return mSharedPreferences.getString("BRANCHNUMBER", "");
@@ -153,7 +155,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     private String getInventory() {
         return "" + mEditTextInventory.getText().toString().trim();
     }
-
 
     /** According query result, store select Id */
     private void setSelectId(long Id) {
@@ -243,19 +244,16 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         }
     }
 
-
     @Override
     public void onFocusChange(View v, boolean hasFocus) {
         if (! hasFocus) {
-            if (R.id.mEditTextQuantity == v.getId()) {
-                if (getQuantity().equals("")) {
-                    mEditTextQuantity.setText("0");
-                }
-
-            } else if (R.id.mEditTextInventory == v.getId()) {
-                if (getInventory().equals("")) {
-                    mEditTextInventory.setText("0");
-                }
+            switch (v.getId()) {
+                case R.id.mEditTextQuantity :
+                    if (getQuantity().equals("")) mEditTextQuantity.setText("0");
+                    break;
+                case R.id.mEditTextInventory :
+                    if (getInventory().equals("")) mEditTextInventory.setText("0");
+                    break;
             }
         }else {
             if (R.id.mButtonScan == v.getId()) {
@@ -294,6 +292,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
             return convertView;
         }
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
@@ -316,6 +315,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         }
         return super.onOptionsItemSelected(item);
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -323,8 +323,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         mSharedPreferences = null;
         mInflater = null;
         mInputMethodManager = null;
+        finish();
     }
 
+    /** Let Title reset, No matter MailActivity has been modified {CompanyName or BranchNumber} 。*/
     @Override
     protected void onResume() {
         super.onResume();

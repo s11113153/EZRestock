@@ -15,8 +15,6 @@ import android.widget.EditText;
 import static tw.com.mobilogics.EZRestock.FilterUtils.strFilter;
 
 public class RegisterActivity extends Activity {
-    private String TAG = getClass().getName();
-    // declare layout widget
     private Button mButtonStar = null;
     private EditText mEditTextCompanyName = null;
     private EditText mEditTextBranchNumber = null;
