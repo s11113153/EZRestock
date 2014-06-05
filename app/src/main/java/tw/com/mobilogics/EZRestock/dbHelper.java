@@ -6,11 +6,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.widget.Toast;
 
-public class dbHelper extends SQLiteOpenHelper {
+public class DBHelper extends SQLiteOpenHelper {
     private final String TableName = "Management";
     private SQLiteDatabase db;
 
-    public dbHelper(Context context, String DbName, int dbVersion) {
+    public DBHelper(Context context, String DbName, int dbVersion) {
         super(context, DbName, null, dbVersion);
         db = this.getWritableDatabase();
     }
@@ -28,8 +28,9 @@ public class dbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        final String SQL = "DROP TABLE " + TableName;
+        final String SQL = "DROP TABLE IF EXISTS " + TableName;
         db.execSQL(SQL);
+        this.onCreate(db);
     }
 
     @Override

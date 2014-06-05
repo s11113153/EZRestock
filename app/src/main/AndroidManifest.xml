@@ -20,6 +20,8 @@
         <activity android:name="tw.com.mobilogics.EZRestock.RegisterActivity" />
         <activity android:name="tw.com.mobilogics.EZRestock.MainActivity"/>
         <activity android:name="tw.com.mobilogics.EZRestock.MailActivity"/>
+
+        
     </application>
 
 </manifest>

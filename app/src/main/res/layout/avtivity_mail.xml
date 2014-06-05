@@ -2,7 +2,9 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:layout_margin="@dimen/activity_margin">>
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="fill_parent"
@@ -20,7 +22,7 @@
         <EditText
             android:maxLength="15"
             android:singleLine="true"
-            android:id="@+id/mail_et_company_name"
+            android:id="@+id/mEditTextCompanyName"
             android:layout_marginTop="5dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
@@ -33,7 +35,7 @@
             android:textSize="22dp"
             android:text="@string/branch_number"/>
         <EditText
-            android:id="@+id/mail_et_branch_number"
+            android:id="@+id/mEditTextBranchNumber"
             android:maxLength="15"
             android:singleLine="true"
             android:layout_marginTop="5dp"
@@ -44,19 +46,32 @@
             android:layout_marginTop="20dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
-            android:textColor="#FFFFFF"
+            android:background="@color/black"
+            android:textColor="@color/white"
             android:text="Save"
-            android:id="@+id/mail_btn_save" />
+            android:id="@+id/mButtonSave" />
         <Button
             android:layout_marginTop="20dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:background="#000000"
-            android:textColor="#FFFFFF"
+            android:background="@color/black"
+            android:textColor="@color/white"
             android:text="Mail"
-            android:id="@+id/mail_btn_mail" />
+            android:id="@+id/mButtonMail" />
+        <ImageView
+            android:layout_marginTop="50dp"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:src="@drawable/bg_logo"/>
+        <TextView
+            android:id="@+id/mTextViewVisitHome"
+            android:layout_marginTop="20dp"
+            android:textColor="@color/black"
+            android:textSize="14sp"
+            android:gravity="center"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/home_visite" />
     </LinearLayout>
-
 
 </LinearLayout>

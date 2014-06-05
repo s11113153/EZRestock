@@ -6,4 +6,6 @@
     <string name="action_mail">Mail</string>
     <string name="scan">SCAN</string>
     <string name="text_color">22sp</string>
+    <string name="home_visite">For more information please visite \n
+            www.mobilogics.com.tw</string>
 </resources>
