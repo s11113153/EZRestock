@@ -11,11 +11,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+import static tw.com.mobilogics.EZRestock.FilterUtils.strFilter;
 
 public class RegisterActivity extends Activity {
     private String TAG = getClass().getName();
@@ -24,7 +21,7 @@ public class RegisterActivity extends Activity {
     private EditText mEditTextCompanyName = null;
     private EditText mEditTextBranchNumber = null;
 
-    private static SharedPreferences mSharedPreferences = null;
+    private SharedPreferences mSharedPreferences = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,60 +38,34 @@ public class RegisterActivity extends Activity {
         mButtonStar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Boolean currentFormat = true;
                 String companyName = mEditTextCompanyName.getText().toString().trim();
                 String branchNumber = mEditTextBranchNumber.getText().toString().trim();
-
-                try {
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
-                    if (null != companyName && ! companyName.equals("")) {
-                        if (strFilter(companyName)) {
-                            editor.putString("COMPANYNAME", companyName);
-                        }else {
-                            currentFormat = false;
-                        }
-                        if (null != branchNumber && ! branchNumber.equals("")) {
-                            if (strFilter(branchNumber)) {
-                                editor.putString("BRANCHNUMBER", branchNumber);
-                            }else {
-                                currentFormat = false;
-                            }
-                        }
-
-                        if (!currentFormat) { // show message for error
-                            final AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
-                            builder.setTitle("Format Error");
-                            builder.setMessage("only English & Chinese & _");
-                            builder.setCancelable(false);
-                            builder.setPositiveButton("OK", null);
-                            builder.show();
-                        }else {
-                            editor.commit();
-                            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-                            startActivity(intent);
-                            onDestroy();
-                        }
-                    }else {
-                        // no input , no response
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                if (! companyName.equals("") && strFilter(companyName)) {
+                    editor.putString("COMPANYNAME", companyName);
+                    if (! branchNumber.equals("") && strFilter(branchNumber)) {
+                        editor.putString("BRANCHNUMBER", branchNumber);
                     }
-                }catch (PatternSyntaxException e) {
-                    Log.d(TAG, "PatternSyntaxException ..");
+                    editor.commit();
+                    Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    onDestroy();
+                }else {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
+                    builder.setTitle("Format Error");
+                    builder.setMessage("only English & Chinese & _");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("OK", null);
+                    builder.show();
                 }
             }
         });
-    }
-
-    /* only uses Chinese && English && _ Character */
-    private boolean strFilter(String str) throws PatternSyntaxException {
-        String regex = "^[a-zA-Z0-9_\u4e00-\u9fa5]+$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(str);
-        return matcher.matches();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         mSharedPreferences = null;
+        finish();
     }
 }

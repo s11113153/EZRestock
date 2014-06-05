@@ -324,4 +324,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         mInflater = null;
         mInputMethodManager = null;
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        setTitle(getCompanyName() + " - " + getBranchNumber().trim());
+    }
 }

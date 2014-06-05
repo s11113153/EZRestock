@@ -1,6 +1,8 @@
 package tw.com.mobilogics.EZRestock;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -14,6 +16,8 @@ import android.widget.TextView;
 import java.util.LinkedList;
 import java.util.List;
 
+import static tw.com.mobilogics.EZRestock.FilterUtils.strFilter;
+
 
 public class MailActivity extends ActionBarActivity implements View.OnClickListener{
     private static LinkedList<String> mLinkedList = null;
@@ -23,6 +27,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     private Button mButtonMail = null;
     private TextView mTextViewVisitHome = null;
     private final String URL = "http://www.mobilogics.com.tw";
+    private SharedPreferences mSharedPreferences = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     private void initial() {
         setTitle("Mail");
         mLinkedList = new LinkedList<String>((List)getIntent().getSerializableExtra("ListData"));
+        mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
         mEditTextCompanyName =  (EditText) findViewById(R.id.mEditTextCompanyName);
         mEditTextBranchNumber = (EditText) findViewById(R.id.mEditTextBranchNumber);
         mButtonSave = (Button) findViewById(R.id.mButtonSave);
@@ -45,10 +51,10 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     }
 
     private String getCompanyName() {
-        return mEditTextCompanyName.getText().toString().trim();
+        return "" + mEditTextCompanyName.getText().toString().trim();
     }
     private String getBranchNumber() {
-        return mEditTextBranchNumber.getText().toString().trim();
+        return "" + mEditTextBranchNumber.getText().toString().trim();
     }
 
     @Override
@@ -68,6 +74,14 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.mButtonSave :
+                if (! getCompanyName().equals("") && strFilter(getCompanyName())) {
+                    SharedPreferences.Editor editor = mSharedPreferences.edit();
+                    editor.putString("COMPANYNAME", getCompanyName());
+                    if (! getBranchNumber().equals("") && strFilter(getBranchNumber())) {
+                        editor.putString("BRANCHNUMBER", getBranchNumber());
+                    }
+                    editor.commit();
+                }
                 break;
             case R.id.mButtonMail :
                 break;
