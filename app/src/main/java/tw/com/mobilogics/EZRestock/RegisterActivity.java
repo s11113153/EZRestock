@@ -6,13 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
-import static tw.com.mobilogics.EZRestock.FilterUtils.strFilter;
+import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 
 public class RegisterActivity extends Activity {
     private Button mButtonStar = null;

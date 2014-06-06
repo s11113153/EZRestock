@@ -16,7 +16,7 @@ import android.widget.TextView;
 import java.util.LinkedList;
 import java.util.List;
 
-import static tw.com.mobilogics.EZRestock.FilterUtils.strFilter;
+import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 
 
 public class MailActivity extends ActionBarActivity implements View.OnClickListener{
