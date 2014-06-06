@@ -3,6 +3,7 @@ package tw.com.mobilogics.EZRestock;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
@@ -54,5 +55,19 @@ public class Utils {
     public static String getDateTime() {
         Date date = new Date();
         return mDateFormat.format(date);
+    }
+
+    public static String getSPofBranchNumber(SharedPreferences sharedPreferences) {
+        if (sharedPreferences.contains("BRANCHNUMBER")) {
+            return sharedPreferences.getString("BRANCHNUMBER", "");
+        }
+        return "";
+    }
+
+    public static  String getSPofCompanyName(SharedPreferences sharedPreferences) {
+        if (sharedPreferences.contains("COMPANYNAME")) {
+            return sharedPreferences.getString("COMPANYNAME","");
+        }
+        return "";
     }
 }

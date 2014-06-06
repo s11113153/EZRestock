@@ -26,6 +26,8 @@ import java.util.LinkedList;
 
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
+import static tw.com.mobilogics.EZRestock.Utils.getSPofCompanyName;
+import static tw.com.mobilogics.EZRestock.Utils.getSPofBranchNumber;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
     private DBHelper mDBHelper = null;
@@ -106,30 +108,30 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         mEditTextInventory.setOnFocusChangeListener(this);
         mButtonScan.setOnFocusChangeListener(this);
 
-        openDB(getCompanyName());
+        openDB("Database");
         mSQLiteDatabaseWrite = mDBHelper.getWritableDatabase();
         mSQLiteDatabaseRead = mDBHelper.getReadableDatabase();
         mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void loadActivityTitle() {
-        setTitle(getCompanyName() + " - " + getBranchNumber().trim());
+        setTitle(getSPofCompanyName(mSharedPreferences) + " - " + getSPofBranchNumber(mSharedPreferences).trim());
     }
-
-    private String getBranchNumber() {
+/*
+    private String getSPofBranchNumber() {
         if (mSharedPreferences.contains("BRANCHNUMBER")) {
             return mSharedPreferences.getString("BRANCHNUMBER", "");
         }
         return "";
     }
 
-    private String getCompanyName() {
+    private String getSPofCompanyName() {
         if (mSharedPreferences.contains("COMPANYNAME")) {
             return mSharedPreferences.getString("COMPANYNAME","");
         }
         return "";
     }
-
+*/
     private String getScanNumber() {
         return "" + mEditTextScanNumber.getText().toString().trim();
     }
@@ -321,6 +323,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     @Override
     protected void onResume() {
         super.onResume();
-        setTitle(getCompanyName() + " - " + getBranchNumber().trim());
+        setTitle(getSPofCompanyName(mSharedPreferences) + " - " + getSPofBranchNumber(mSharedPreferences).trim());
     }
 }

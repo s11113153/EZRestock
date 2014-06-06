@@ -6,18 +6,23 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import java.util.LinkedList;
 import java.util.List;
 
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
+import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
+import static tw.com.mobilogics.EZRestock.Utils.getSPofBranchNumber;
+import static tw.com.mobilogics.EZRestock.Utils.getSPofCompanyName;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 
@@ -29,8 +34,10 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     private Button mButtonSave = null;
     private Button mButtonMail = null;
     private TextView mTextViewVisitHome = null;
-    private final String URL = "http://www.mobilogics.com.tw";
+
     private SharedPreferences mSharedPreferences = null;
+
+    private final String URL = "http://www.mobilogics.com.tw";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +66,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     private String getBranchNumber() {
         return "" + mEditTextBranchNumber.getText().toString().trim();
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -94,6 +102,13 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                 if (checkInternetConnect(MailActivity.this)) {
                     if (null != mLinkedList  && mLinkedList.size() > 0) {
                         // .txt附檔名, 格式為cvs
+                        String dateTime = getDateTime();
+                        String date = dateTime.split(" ")[0].replace("-", "");
+                        String time = dateTime.split(" ")[1].replace(":", "");
+                        String mailTitle = "ezRestock" + "_" + getSPofCompanyName(mSharedPreferences) + "_" + getSPofBranchNumber(mSharedPreferences)
+                                + "_" + date + "_" + time;
+                        Log.d("mailTitle : ", mailTitle);
+
                     }else {
                         // notification database is no data exist
                         promptMessage("資料庫", "目前沒有資料存在!", MailActivity.this);
