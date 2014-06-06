@@ -92,7 +92,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
             case R.id.mButtonMail :
                 if (checkInternetConnect(MailActivity.this)) {
                     if (null != mLinkedList  && mLinkedList.size() > 0) {
-
+                        // .txt附檔名, 格式為cvs
                     }else {
                         // notification database is no data exist
                         promptMessage("資料庫", "目前沒有資料存在!", MailActivity.this);

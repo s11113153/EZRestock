@@ -12,35 +12,39 @@ import android.view.Window;
 import android.widget.Toast;
 
 public class LoadActivity extends Activity{
-    private SharedPreferences sharedpreferences = null;
-    private Intent intent;
+    private SharedPreferences mSharedPreferences = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        intent = new Intent();
 
-        sharedpreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
-        String str_CompanyName = sharedpreferences.getString("COMPANYNAME", null);
+        mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
+        String companyName = mSharedPreferences.getString("COMPANYNAME", null);
+        final  Intent intent = new Intent();
 
-        if (null != str_CompanyName) {
-            View  v = getLayoutInflater().inflate(R.layout.load,null,false);
+        if (null != companyName) {
+            View  v = getLayoutInflater().inflate(R.layout.load, null, false);
             setContentView(v);
 
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    intent.setClass(LoadActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    finish();
+                intent.setClass(LoadActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
                 }
-            },2000);
+            }, 2000);
         }else {
             intent.setClass(LoadActivity.this, RegisterActivity.class);
             startActivity(intent);
-            finish();
         }
+    }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSharedPreferences = null;
+        finish();
     }
 }
