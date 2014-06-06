@@ -22,20 +22,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.LinkedList;
-import java.util.Locale;
+
+import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
+import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
     private DBHelper mDBHelper = null;
     private SharedPreferences mSharedPreferences = null;
     private LayoutInflater mInflater = null;
     private InputMethodManager mInputMethodManager = null;
-    private final SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
     private ListAdapter mListAdapter = new ListAdapter();
     private EditText mEditTextQuantity = null;
     private EditText mEditTextInventory = null;
@@ -185,11 +181,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         }
     }
 
-    private String getDateTime() {
-        Date date = new Date();
-        return mDateFormat.format(date);
-    }
-
     private void dbInsert(String scanNumber, String quantity, String inventory) {
         ContentValues values = new ContentValues();
         values.put("ScanNumber", scanNumber);
@@ -197,7 +188,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         values.put("Inventory" , inventory);
         values.put("createTime" , getDateTime());
         if (-1 == mSQLiteDatabaseWrite.insert(mTableName, null, values)) {
-            Toast.makeText(MainActivity.this, "Insert Into Fail", Toast.LENGTH_LONG).show();
+            promptMessage("Notice", "Insert Into Fail", MainActivity.this);
         }
     }
 
@@ -208,7 +199,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         values.put("Inventory" , getInventory());
         values.put("createTime" , getDateTime());
         if (-1 == mSQLiteDatabaseWrite.update(mTableName, values, "Id=" + id, null)) {
-            Toast.makeText(MainActivity.this, "Update Fail", Toast.LENGTH_LONG).show();
+            promptMessage("Notice", "Update Fail", MainActivity.this);
         }
         setSelectId(-1);
     }
@@ -228,7 +219,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
             }
         }
         mLinkedList.addFirst(tmpContent);
-
     }
 
     private void refreshListData() {
@@ -238,8 +228,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
                 " FROM " + mTableName + " ORDER BY datetime(createTime) DESC", null);
         int count = 0;
         while (cursor.moveToNext()) {
-            String rowQuery = cursor.getString(0) + "_" + cursor.getString(1) + "_" + cursor.getString(2) + "_"
-                    +cursor.getString(3);
+            String rowQuery = cursor.getString(0) + "_" + cursor.getString(1) + "_" + cursor.getString(2) + "_" +cursor.getString(3);
             mLinkedList.add(count++, rowQuery);
         }
     }
@@ -251,6 +240,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
                 case R.id.mEditTextQuantity :
                     if (getQuantity().equals("")) mEditTextQuantity.setText("0");
                     break;
+
                 case R.id.mEditTextInventory :
                     if (getInventory().equals("")) mEditTextInventory.setText("0");
                     break;
@@ -310,6 +300,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
                 intent.putExtras(bundle);
                 startActivity(intent);
                 break;
+
             default:
                 break;
         }

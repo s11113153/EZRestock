@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
+
 import android.view.View;
 import android.view.Window;
-import android.widget.Toast;
+
 
 public class LoadActivity extends Activity{
     private SharedPreferences mSharedPreferences = null;
@@ -38,6 +38,7 @@ public class LoadActivity extends Activity{
         }else {
             intent.setClass(LoadActivity.this, RegisterActivity.class);
             startActivity(intent);
+            finish();
         }
     }
 
@@ -45,6 +46,5 @@ public class LoadActivity extends Activity{
     protected void onDestroy() {
         super.onDestroy();
         mSharedPreferences = null;
-        finish();
     }
 }

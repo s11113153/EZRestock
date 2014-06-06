@@ -6,10 +6,16 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
+    private final static  SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
+
+
 
     /**
      * only uses Chinese && English && _ Character
@@ -38,11 +44,15 @@ public class Utils {
      *  According title && message && activity , notice User current operation error message
      */
     public static void promptMessage(String title, String msg, Activity activity) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
         builder.setTitle(title);
         builder.setMessage(msg);
         builder.setPositiveButton("Ok", null);
         builder.show();
     }
 
+    public static String getDateTime() {
+        Date date = new Date();
+        return mDateFormat.format(date);
+    }
 }

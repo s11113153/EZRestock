@@ -12,7 +12,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import java.util.LinkedList;
 import java.util.List;
@@ -86,6 +86,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                     editor.commit();
                     mEditTextCompanyName.setText("");
                     mEditTextBranchNumber.setText("");
+                    promptMessage("Notice", "已經修改完成", MailActivity.this);
                 }
                 break;
 

@@ -1,7 +1,6 @@
 package tw.com.mobilogics.EZRestock;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -11,6 +10,7 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
+import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 
 public class RegisterActivity extends Activity {
@@ -46,14 +46,9 @@ public class RegisterActivity extends Activity {
                     editor.commit();
                     Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                     startActivity(intent);
-                    onDestroy();
+                    finish();
                 }else {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(RegisterActivity.this);
-                    builder.setTitle("Format Error");
-                    builder.setMessage("only English & Chinese & _");
-                    builder.setCancelable(false);
-                    builder.setPositiveButton("OK", null);
-                    builder.show();
+                    promptMessage("Format Error", "only English & Chinese & _", RegisterActivity.this);
                 }
             }
         });
@@ -63,6 +58,5 @@ public class RegisterActivity extends Activity {
     protected void onDestroy() {
         super.onDestroy();
         mSharedPreferences = null;
-        finish();
     }
 }
