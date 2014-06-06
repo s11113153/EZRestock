@@ -1,10 +1,12 @@
 package tw.com.mobilogics.EZRestock;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -20,11 +22,13 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
+import static tw.com.mobilogics.EZRestock.Utils.createEZRestockDir;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
 import static tw.com.mobilogics.EZRestock.Utils.getSPofBranchNumber;
 import static tw.com.mobilogics.EZRestock.Utils.getSPofCompanyName;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
+import static tw.com.mobilogics.EZRestock.Utils.createEZRestockFile;
 
 
 public class MailActivity extends ActionBarActivity implements View.OnClickListener{
@@ -38,6 +42,9 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     private SharedPreferences mSharedPreferences = null;
 
     private final String URL = "http://www.mobilogics.com.tw";
+
+    private boolean mEZRestockDirIsExist = false;
+    private final String EZRestockDirPath = Environment.getExternalStorageDirectory().getPath() + "/EZRestock";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +65,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         mTextViewVisitHome.setOnClickListener(this);
         mButtonSave.setOnClickListener(this);
         mButtonMail.setOnClickListener(this);
+        mEZRestockDirIsExist = createEZRestockDir(Environment.getExternalStorageDirectory().getPath(), "EZRestock");
     }
 
     private String getCompanyName() {
@@ -105,9 +113,34 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                         String dateTime = getDateTime();
                         String date = dateTime.split(" ")[0].replace("-", "");
                         String time = dateTime.split(" ")[1].replace(":", "");
-                        String mailTitle = "ezRestock" + "_" + getSPofCompanyName(mSharedPreferences) + "_" + getSPofBranchNumber(mSharedPreferences)
-                                + "_" + date + "_" + time;
-                        Log.d("mailTitle : ", mailTitle);
+                        String companyName = getSPofCompanyName(mSharedPreferences);
+                        String branchNumber = getSPofBranchNumber(mSharedPreferences);
+
+                        String mailSubject = "ezRestock" + "_" + companyName + "_" + branchNumber + "_" + date + "_" + time;
+                        String fileName =  companyName + "_" + branchNumber + "_" + date + "_" + time + ".txt";
+
+                        if (mEZRestockDirIsExist) {
+                            if (createEZRestockFile(EZRestockDirPath, fileName)) {
+                                // create successful
+                                Toast.makeText(MailActivity.this, "Successful", Toast.LENGTH_LONG).show();
+                            }else {
+                              // notice fail
+                            }
+                        }else {
+                            // notice fail
+                        }
+
+                        Intent intent = new Intent(Intent.ACTION_SEND);
+                        intent.setType("message/rfc822");
+                        intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
+                        //intent.putExtra(Intent.EXTRA_TEXT, "write email");
+
+                        try {
+                            startActivity(Intent.createChooser(intent, "chose one of sends"));
+                        }catch (ActivityNotFoundException e) {
+                            Log.d("MailActivity", "send Mail is Fail ...");
+                        }
+
 
                     }else {
                         // notification database is no data exist

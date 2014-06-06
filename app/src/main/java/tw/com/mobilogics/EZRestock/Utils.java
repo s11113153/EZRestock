@@ -6,7 +6,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Environment;
+import android.util.Log;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -15,7 +19,7 @@ import java.util.regex.Pattern;
 
 public class Utils {
     private final static  SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
-
+    private final static  String state = Environment.getExternalStorageState();
 
 
     /**
@@ -69,5 +73,44 @@ public class Utils {
             return sharedPreferences.getString("COMPANYNAME","");
         }
         return "";
+    }
+
+
+    /**
+     * create Dir to store  file.txt && return create result
+     */
+    public static boolean createEZRestockDir(String path, String dir) {
+        boolean exist = false;
+        if (Environment.MEDIA_MOUNTED.equals(state)) {
+            File file = new File(path, dir);
+            if (!file.exists()) {
+                if (file.mkdir()) {
+                    exist = true;
+                }
+            }else {
+                exist = true;
+            }
+        }
+        return exist;
+    }
+
+    /**
+     * File is store in EZRestock DIR。
+     * File Name is according time to create , So only createNewFile == true  otherwise === false
+     */
+    public static boolean createEZRestockFile(String path, String filePath) {
+        boolean result = false;
+        if(Environment.MEDIA_MOUNTED.equals(state)) {
+            File file = new File(path, filePath);
+            if (!file.exists()) {
+                try {
+                    file.createNewFile();
+                    result = true;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return result;
     }
 }
