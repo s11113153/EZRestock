@@ -12,10 +12,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.LinkedList;
 import java.util.List;
 
+import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
+import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 
 
@@ -85,16 +88,29 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                     mEditTextBranchNumber.setText("");
                 }
                 break;
-            case R.id.mButtonMail :
-                if (null != mLinkedList  && mLinkedList.size() > 0) {
 
+            case R.id.mButtonMail :
+                if (checkInternetConnect(MailActivity.this)) {
+                    if (null != mLinkedList  && mLinkedList.size() > 0) {
+
+                    }else {
+                        // notification database is no data exist
+                        promptMessage("資料庫", "目前沒有資料存在!", MailActivity.this);
+                    }
                 }else {
-                    // notification database is no data exist
+                    // notification Netwoek is no connect
+                    promptMessage("網路", "搜尋不到網路", MailActivity.this);
                 }
                 break;
+
             case R.id.mTextViewVisitHome :
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-                startActivity(intent);
+                if (checkInternetConnect(MailActivity.this)) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
+                    startActivity(intent);
+                }else {
+                    // notification Netwoek is no connect
+                    promptMessage("網路", "搜尋不到網路", MailActivity.this);
+                }
                 break;
         }
     }
