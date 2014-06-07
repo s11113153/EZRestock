@@ -96,21 +96,20 @@ public class Utils {
 
     /**
      * File is store in EZRestock DIR。
-     * File Name is according time to create , So only createNewFile == true  otherwise === false
+     * File Name is according time to create , So only createNewFile && return file ,   otherwise status return null
      */
-    public static boolean createEZRestockFile(String path, String filePath) {
-        boolean result = false;
+    public static File createEZRestockFile(String path, String filePath) throws IOException{
         if(Environment.MEDIA_MOUNTED.equals(state)) {
             File file = new File(path, filePath);
             if (!file.exists()) {
                 try {
                     file.createNewFile();
-                    result = true;
+                    return file;
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new IOException();
                 }
             }
         }
-        return result;
+        return null;
     }
 }

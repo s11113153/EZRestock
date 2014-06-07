@@ -15,9 +15,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,6 +43,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
 
     private SharedPreferences mSharedPreferences = null;
 
+    private final String TAG = ((Object)this).getClass().getSimpleName();
     private final String URL = "http://www.mobilogics.com.tw";
 
     private boolean mEZRestockDirIsExist = false;
@@ -109,7 +112,6 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
             case R.id.mButtonMail :
                 if (checkInternetConnect(MailActivity.this)) {
                     if (null != mLinkedList  && mLinkedList.size() > 0) {
-                        // .txt附檔名, 格式為cvs
                         String dateTime = getDateTime();
                         String date = dateTime.split(" ")[0].replace("-", "");
                         String time = dateTime.split(" ")[1].replace(":", "");
@@ -120,28 +122,39 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                         String fileName =  companyName + "_" + branchNumber + "_" + date + "_" + time + ".txt";
 
                         if (mEZRestockDirIsExist) {
-                            if (createEZRestockFile(EZRestockDirPath, fileName)) {
-                                // create successful
-                                Toast.makeText(MailActivity.this, "Successful", Toast.LENGTH_LONG).show();
-                            }else {
-                              // notice fail
+                            File file;
+                            try {
+                                if ((file = createEZRestockFile(EZRestockDirPath, fileName)) != null) {
+                                    FileWriter fileWriter = new FileWriter(file);
+                                    fileWriter.write("ProCode,Quantity,Inventory,Date,Time\n");
+                                    for (int i=0;i<mLinkedList.size();i++) {
+                                        //originFormat 4710063022883_5_0_2014-06-07 08:56:13
+                                        //makeFormat   4710063022883,5,0,20130604,1659
+                                        String s = mLinkedList.get(i).replace("_" , ",").replace("-", "")
+                                                .replace(" ",",").replace(":", "");
+                                        fileWriter.write(s + "\n");
+                                    }
+                                    fileWriter.close();
+                                    Intent intent = new Intent(Intent.ACTION_SEND);
+                                    intent.setType("text/plain");
+                                    intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
+                                    intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+                                    try {
+                                        startActivity(Intent.createChooser(intent, "choose one of send File"));
+                                        //mLinkedList.clear(); // write successful and clear, prevent use create duplicate file
+                                    }catch (ActivityNotFoundException e) {
+                                        Log.e(TAG, "send Mail is Fail ...");
+                                        e.printStackTrace();
+                                    }
+                                } else {
+                                    promptMessage("Fail", "create file is Fail", MailActivity.this);
+                                }
+                            } catch(IOException e) {
+                              e.printStackTrace();
                             }
-                        }else {
-                            // notice fail
+                        } else {
+                            promptMessage("Fail", "EZRestock Directory is no exist", MailActivity.this);
                         }
-
-                        Intent intent = new Intent(Intent.ACTION_SEND);
-                        intent.setType("message/rfc822");
-                        intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
-                        //intent.putExtra(Intent.EXTRA_TEXT, "write email");
-
-                        try {
-                            startActivity(Intent.createChooser(intent, "chose one of sends"));
-                        }catch (ActivityNotFoundException e) {
-                            Log.d("MailActivity", "send Mail is Fail ...");
-                        }
-
-
                     }else {
                         // notification database is no data exist
                         promptMessage("資料庫", "目前沒有資料存在!", MailActivity.this);
