@@ -96,12 +96,18 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.mButtonSave :
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                boolean editResult = false;
+
                 if (! getCompanyName().equals("") && strFilter(getCompanyName())) {
-                    SharedPreferences.Editor editor = mSharedPreferences.edit();
                     editor.putString("COMPANYNAME", getCompanyName());
-                    if (! getBranchNumber().equals("") && strFilter(getBranchNumber())) {
-                        editor.putString("BRANCHNUMBER", getBranchNumber());
-                    }
+                    editResult = true;
+                }
+                if (! getBranchNumber().equals("") && strFilter(getBranchNumber())) {
+                    editor.putString("BRANCHNUMBER", getBranchNumber());
+                    editResult = true;
+                }
+                if (editResult) {
                     editor.commit();
                     mEditTextCompanyName.setText("");
                     mEditTextBranchNumber.setText("");
