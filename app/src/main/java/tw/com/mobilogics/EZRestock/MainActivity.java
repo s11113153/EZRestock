@@ -117,21 +117,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     private void loadActivityTitle() {
         setTitle(getSPofCompanyName(mSharedPreferences) + " - " + getSPofBranchNumber(mSharedPreferences).trim());
     }
-/*
-    private String getSPofBranchNumber() {
-        if (mSharedPreferences.contains("BRANCHNUMBER")) {
-            return mSharedPreferences.getString("BRANCHNUMBER", "");
-        }
-        return "";
-    }
 
-    private String getSPofCompanyName() {
-        if (mSharedPreferences.contains("COMPANYNAME")) {
-            return mSharedPreferences.getString("COMPANYNAME","");
-        }
-        return "";
-    }
-*/
     private String getScanNumber() {
         return "" + mEditTextScanNumber.getText().toString().trim();
     }
