@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 public class DBHelper extends SQLiteOpenHelper {
     private final String TableName = "Management";
-    private SQLiteDatabase db;
 
-    public DBHelper(Context context, String DbName, int dbVersion) {
-        super(context, DbName, null, dbVersion);
-        db = this.getWritableDatabase();
+    public DBHelper(Context context, String dbName, int dbVersion) {
+        super(context, dbName, null, dbVersion);
+        SQLiteDatabase db = this.getWritableDatabase();
+
     }
     @Override
     public void onCreate(SQLiteDatabase db) {

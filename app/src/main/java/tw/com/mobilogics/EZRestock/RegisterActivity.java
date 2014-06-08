@@ -35,9 +35,10 @@ public class RegisterActivity extends Activity {
         mButtonStar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
                 String companyName = mEditTextCompanyName.getText().toString().trim();
                 String branchNumber = mEditTextBranchNumber.getText().toString().trim();
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
+
                 if (! companyName.equals("") && strFilter(companyName)) {
                     editor.putString("COMPANYNAME", companyName);
                     if (! branchNumber.equals("") && strFilter(branchNumber)) {
@@ -57,6 +58,7 @@ public class RegisterActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // clear object references
         mSharedPreferences = null;
     }
 }

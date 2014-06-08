@@ -3,6 +3,7 @@ package tw.com.mobilogics.EZRestock;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,9 +19,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Utils {
-    private final static  SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
-    private final static  String state = Environment.getExternalStorageState();
+    private final static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
 
+    private final static String mState = Environment.getExternalStorageState();
 
     /**
      * only uses Chinese && English && _ Character
@@ -57,31 +58,15 @@ public class Utils {
     }
 
     public static String getDateTime() {
-        Date date = new Date();
-        return mDateFormat.format(date);
+        return mDateFormat.format(System.currentTimeMillis());
     }
-
-    public static String getSPofBranchNumber(SharedPreferences sharedPreferences) {
-        if (sharedPreferences.contains("BRANCHNUMBER")) {
-            return sharedPreferences.getString("BRANCHNUMBER", "");
-        }
-        return "";
-    }
-
-    public static  String getSPofCompanyName(SharedPreferences sharedPreferences) {
-        if (sharedPreferences.contains("COMPANYNAME")) {
-            return sharedPreferences.getString("COMPANYNAME","");
-        }
-        return "";
-    }
-
 
     /**
      * create Dir to store  file.txt && return create result
      */
     public static boolean createEZRestockDir(String path, String dir) {
         boolean exist = false;
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
+        if (Environment.MEDIA_MOUNTED.equals(mState)) {
             File file = new File(path, dir);
             if (!file.exists()) {
                 if (file.mkdir()) {
@@ -99,7 +84,7 @@ public class Utils {
      * File Name is according time to create , So only createNewFile && return file ,   otherwise status return null
      */
     public static File createEZRestockFile(String path, String filePath) throws IOException{
-        if(Environment.MEDIA_MOUNTED.equals(state)) {
+        if(Environment.MEDIA_MOUNTED.equals(mState)) {
             File file = new File(path, filePath);
             if (!file.exists()) {
                 try {
@@ -112,6 +97,4 @@ public class Utils {
         }
         return null;
     }
-
-
 }

@@ -26,8 +26,6 @@ import java.util.List;
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockDir;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
-import static tw.com.mobilogics.EZRestock.Utils.getSPofBranchNumber;
-import static tw.com.mobilogics.EZRestock.Utils.getSPofCompanyName;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockFile;
@@ -68,6 +66,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         mTextViewVisitHome.setOnClickListener(this);
         mButtonSave.setOnClickListener(this);
         mButtonMail.setOnClickListener(this);
+
+
         mEZRestockDirIsExist = createEZRestockDir(Environment.getExternalStorageDirectory().getPath(), "EZRestock");
     }
 
@@ -121,8 +121,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                         String dateTime = getDateTime();
                         String date = dateTime.split(" ")[0].replace("-", "");
                         String time = dateTime.split(" ")[1].replace(":", "");
-                        String companyName = getSPofCompanyName(mSharedPreferences);
-                        String branchNumber = getSPofBranchNumber(mSharedPreferences);
+                        String companyName  = mSharedPreferences.getString("COMPANYNAME", "");
+                        String branchNumber = mSharedPreferences.getString("BRANCHNUMBER", "");
 
                         String mailSubject = "ezRestock" + "_" + companyName + "_" + branchNumber + "_" + date + "_" + time;
                         String fileName =  companyName + "_" + branchNumber + "_" + date + "_" + time + ".txt";
@@ -153,9 +153,10 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                                         e.printStackTrace();
                                     }
                                 } else {
-                                    promptMessage("Fail", "create file is Fail", MailActivity.this);
+                                    promptMessage("Fail", "create EZRestockFile is Fail", MailActivity.this);
                                 }
                             } catch(IOException e) {
+                                Log.e(TAG, "EZRestock file is throw IOException , maybe be created or write file");
                               e.printStackTrace();
                             }
                         } else {
@@ -186,7 +187,10 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // clean objects references
         mSharedPreferences = null;
+        mLinkedList.clear();
+        mLinkedList = null;
         finish();
     }
 }

@@ -25,9 +25,7 @@ import android.widget.Toast;
 import java.util.LinkedList;
 
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
-import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
-import static tw.com.mobilogics.EZRestock.Utils.getSPofCompanyName;
-import static tw.com.mobilogics.EZRestock.Utils.getSPofBranchNumber;
+import static tw.com.mobilogics.EZRestock.Utils.promptMessage;;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
     private DBHelper mDBHelper = null;
@@ -115,7 +113,8 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     }
 
     private void loadActivityTitle() {
-        setTitle(getSPofCompanyName(mSharedPreferences) + " - " + getSPofBranchNumber(mSharedPreferences).trim());
+        setTitle(mSharedPreferences.getString("COMPANYNAME", "")
+                + " - " + mSharedPreferences.getString("BRANCHNUMBER","").trim());
     }
 
     private String getScanNumber() {
@@ -226,11 +225,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         if (! hasFocus) {
             switch (v.getId()) {
                 case R.id.mEditTextQuantity :
-                    if (getQuantity().equals("")) mEditTextQuantity.setText("0");
+                    if (getQuantity().equals(""))  { mEditTextQuantity.setText("0"); }
                     break;
-
                 case R.id.mEditTextInventory :
-                    if (getInventory().equals("")) mEditTextInventory.setText("0");
+                    if (getInventory().equals("")) { mEditTextInventory.setText("0"); }
                     break;
             }
         }else {
@@ -298,6 +296,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // clean objects references
         closeDB();
         mSharedPreferences = null;
         mInflater = null;
@@ -309,6 +308,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     @Override
     protected void onResume() {
         super.onResume();
-        setTitle(getSPofCompanyName(mSharedPreferences) + " - " + getSPofBranchNumber(mSharedPreferences).trim());
+        loadActivityTitle();
     }
 }

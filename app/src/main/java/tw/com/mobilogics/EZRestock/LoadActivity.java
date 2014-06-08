@@ -21,7 +21,7 @@ public class LoadActivity extends Activity{
 
         mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
         String companyName = mSharedPreferences.getString("COMPANYNAME", null);
-        final  Intent intent = new Intent();
+        final Intent intent = new Intent();
 
         if (null != companyName) {
             View  v = getLayoutInflater().inflate(R.layout.load, null, false);
