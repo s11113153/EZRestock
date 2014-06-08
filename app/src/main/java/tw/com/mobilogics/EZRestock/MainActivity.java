@@ -210,7 +210,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
 
     private void refreshListData() {
         mLinkedList.clear();
-
         Cursor cursor = mSQLiteDatabaseRead.rawQuery("SELECT ScanNumber, Quantity, Inventory, createTime" +
                 " FROM " + mTableName + " ORDER BY datetime(createTime) DESC", null);
         int count = 0;

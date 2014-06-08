@@ -189,7 +189,6 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         super.onDestroy();
         // clean objects references
         mSharedPreferences = null;
-        mLinkedList.clear();
         mLinkedList = null;
         finish();
     }

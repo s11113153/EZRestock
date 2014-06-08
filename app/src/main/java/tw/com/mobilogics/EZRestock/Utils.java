@@ -3,22 +3,20 @@ package tw.com.mobilogics.EZRestock;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
-import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Utils {
+final public class Utils {
+    private Utils() {}
+
     private final static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
 
     private final static String mState = Environment.getExternalStorageState();
@@ -80,7 +78,7 @@ public class Utils {
     }
 
     /**
-     * File is store in EZRestock DIR。
+     * File has been store in EZRestock DIR。
      * File Name is according time to create , So only createNewFile && return file ,   otherwise status return null
      */
     public static File createEZRestockFile(String path, String filePath) throws IOException{
