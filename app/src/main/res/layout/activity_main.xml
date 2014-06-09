@@ -30,7 +30,8 @@
             android:layout_weight="1"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:inputType="number"/>
+            android:inputType="number"
+            android:imeOptions="actionNext"/>
     </LinearLayout>
     <Button
         android:id="@+id/mButtonScan"
@@ -39,7 +40,8 @@
         android:text="@string/scan"
         android:textColor="@color/white"
         android:background="@color/black"
-        android:layout_below="@+id/linearLayout" />
+        android:layout_below="@+id/linearLayout"
+        android:imeOptions="actionDone"/>
     <LinearLayout
         android:layout_marginTop="5dp"
         android:layout_below="@+id/mButtonScan"
