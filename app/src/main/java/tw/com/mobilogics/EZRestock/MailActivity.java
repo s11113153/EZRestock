@@ -141,17 +141,13 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                                         fileWriter.write(s + "\n");
                                     }
                                     fileWriter.close();
-                                    Intent intent = new Intent(Intent.ACTION_SEND);
-                                    intent.setType("text/plain");
+
+                                    // open Gmail && send mail
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
                                     intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
                                     intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-                                    try {
-                                        startActivity(Intent.createChooser(intent, "choose one of send File"));
-                                        //mLinkedList.clear(); // write successful and clear, prevent use create duplicate file
-                                    }catch (ActivityNotFoundException e) {
-                                        Log.e(TAG, "send Mail is Fail ...");
-                                        e.printStackTrace();
-                                    }
+                                    startActivity(intent);
                                 } else {
                                     promptMessage("Fail", "create EZRestockFile is Fail", MailActivity.this);
                                 }
