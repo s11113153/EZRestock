@@ -9,7 +9,7 @@
         android:theme="@style/Theme.AppCompat.Light.DarkActionBar">
         <activity
             android:name="tw.com.mobilogics.EZRestock.LoadActivity"
-            android:label="@string/app_name">
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -17,11 +17,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="tw.com.mobilogics.EZRestock.RegisterActivity" />
-        <activity android:name="tw.com.mobilogics.EZRestock.MainActivity"/>
-        <activity android:name="tw.com.mobilogics.EZRestock.MailActivity"/>
+        <activity android:name="tw.com.mobilogics.EZRestock.RegisterActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name="tw.com.mobilogics.EZRestock.MainActivity"
+                  android:screenOrientation="portrait"/>
+        <activity android:name="tw.com.mobilogics.EZRestock.MailActivity"
+                  android:screenOrientation="portrait"/>
 
-  
     </application>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>

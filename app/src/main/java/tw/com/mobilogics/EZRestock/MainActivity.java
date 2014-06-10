@@ -25,7 +25,8 @@ import android.widget.Toast;
 import java.util.LinkedList;
 
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
-import static tw.com.mobilogics.EZRestock.Utils.promptMessage;;
+import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
+import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
     private DBHelper mDBHelper = null;
@@ -58,7 +59,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
             @Override
             public void onClick(View v) {
                 if ( ! getScanNumber().equals("") && ! getQuantity().equals("") && !getInventory().equals("")) {
-                    String select = dbSelect(getScanNumber()); // if return "" , no Data exist
+                    String select = selectDB(getScanNumber()); // if return "" , no Data exist
                     // Execution select
                     if (0 == Double.parseDouble(getQuantity()) && 0 == Double.parseDouble(getInventory())) {
                         if (select.equals("")) {
@@ -80,7 +81,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
                             refreshListData();
                             mListView.setAdapter(mListAdapter);
                         }else {// Execution update
-                            dbUpdate(getSelectId());
+                            updateDB(getSelectId());
                             refreshListData();
                             mListView.setAdapter(mListAdapter);
                         }
@@ -149,7 +150,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         return mId;
     }
 
-    private String dbSelect(String scanNumber) {
+    private String selectDB(String scanNumber) {
         String quantity = "" , inventory = "";
         Cursor cursor = mSQLiteDatabaseRead.rawQuery(
             "select Id, ScanNumber, Quantity, Inventory from Management Where ScanNumber=?",
@@ -180,7 +181,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     }
 
     /** if Update return -1 , then show Message */
-    private void dbUpdate(long id) {
+    private void updateDB(long id) {
         ContentValues values = new ContentValues();
         values.put("Quantity"  , getQuantity());
         values.put("Inventory" , getInventory());

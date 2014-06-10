@@ -49,7 +49,7 @@ public class RegisterActivity extends Activity {
                     startActivity(intent);
                     finish();
                 }else {
-                    promptMessage("Format Error", "only English & Chinese & _", RegisterActivity.this);
+                    promptMessage("format error", "No Blank and only English & Chinese & _", RegisterActivity.this);
                 }
             }
         });

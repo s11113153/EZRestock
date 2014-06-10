@@ -6,6 +6,8 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,6 +22,7 @@ final public class Utils {
     private final static SimpleDateFormat mDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.TAIWAN);
 
     private final static String mState = Environment.getExternalStorageState();
+    private final static DisplayMetrics mDisplayMetrics = new DisplayMetrics();
 
     /**
      * only uses Chinese && English && _ Character
@@ -81,7 +84,7 @@ final public class Utils {
      * File has been store in EZRestock DIR。
      * File Name is according time to create , So only createNewFile && return file ,   otherwise status return null
      */
-    public static File createEZRestockFile(String path, String filePath) throws IOException{
+    public static File createEZRestockFile(String path, String filePath) throws IOException {
         if(Environment.MEDIA_MOUNTED.equals(mState)) {
             File file = new File(path, filePath);
             if (!file.exists()) {
@@ -94,5 +97,17 @@ final public class Utils {
             }
         }
         return null;
+    }
+
+  /**
+   * According to current Activity && Screen, judge whether smaller screen
+   * @return true : smaller screen
+   */
+    public static boolean IsSmallerScreen(Activity activity) {
+      activity.getWindowManager().getDefaultDisplay().getMetrics(mDisplayMetrics);
+      if (mDisplayMetrics.widthPixels <= 240 && mDisplayMetrics.heightPixels <= 320) {
+        return true;
+      }
+      return false;
     }
 }
