@@ -22,13 +22,13 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockDir;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockFile;
-
 
 public class MailActivity extends ActionBarActivity implements View.OnClickListener {
 
@@ -57,7 +57,11 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.avtivity_mail);
+    if (IsSmallerScreen(MailActivity.this)) {
+      setContentView(R.layout.activity_mail_233);
+    }else {
+      setContentView(R.layout.avtivity_mail);
+    }
     initial();
 
     mEZRestockDirIsExist = createEZRestockDir(Environment.getExternalStorageDirectory().getPath(), "EZRestock");

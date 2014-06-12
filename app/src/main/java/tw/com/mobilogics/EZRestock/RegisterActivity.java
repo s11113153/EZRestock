@@ -12,6 +12,7 @@ import android.widget.EditText;
 
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
+import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 
 public class RegisterActivity extends Activity {
     private Button mButtonStar = null;
@@ -24,7 +25,11 @@ public class RegisterActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_register);
+        if (IsSmallerScreen(RegisterActivity.this)) {
+          setContentView(R.layout.activity_register_233);
+        }else {
+          setContentView(R.layout.activity_register);
+        }
         mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
 
         // initial

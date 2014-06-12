@@ -17,7 +17,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:text="@string/company_name"
-            android:textSize="22dp"
+            android:textSize="22sp"
             android:textColor="#000000"/>
         <EditText
             android:maxLength="15"
@@ -32,7 +32,7 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textColor="#000000"
-            android:textSize="22dp"
+            android:textSize="22sp"
             android:text="@string/branch_number"/>
         <EditText
             android:id="@+id/mEditTextBranchNumber"
@@ -41,7 +41,7 @@
             android:layout_marginTop="5dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:textSize="22dp"/>
+            android:textSize="22sp"/>
         <Button
             android:layout_marginTop="20dp"
             android:layout_width="fill_parent"
@@ -59,13 +59,13 @@
             android:text="Mail"
             android:id="@+id/mButtonMail" />
         <ImageView
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="40dp"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:src="@drawable/bg_logo"/>
         <TextView
             android:id="@+id/mTextViewVisitHome"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:gravity="center"

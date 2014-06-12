@@ -50,7 +50,12 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        if (IsSmallerScreen(MainActivity.this)) {
+          setContentView(R.layout.activity_main_233);
+        }else {
+          setContentView(R.layout.activity_main);
+        }
+
         initial();
         mEditTextScanNumber.requestFocus(); // Default First Focus
         loadActivityTitle();
@@ -114,8 +119,9 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     }
 
     private void loadActivityTitle() {
-        setTitle(mSharedPreferences.getString("COMPANYNAME", "")
-                + " - " + mSharedPreferences.getString("BRANCHNUMBER","").trim());
+      String companyName = mSharedPreferences.getString("COMPANYNAME", "");
+      String branchNumber = mSharedPreferences.getString("BRANCHNUMBER", "");
+      getSupportActionBar().setTitle(companyName + " - " + branchNumber);
     }
 
     private String getScanNumber() {
@@ -278,17 +284,16 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.action_email :
-                refreshListData();
-                Intent intent = new Intent(MainActivity.this, MailActivity.class);
-                Bundle bundle = new Bundle();
-                bundle.putSerializable("ListData", mLinkedList);
-                intent.putExtras(bundle);
-                startActivity(intent);
-                break;
-
-            default:
-                break;
+          case R.id.action_email :
+            refreshListData();
+            Intent intent = new Intent(MainActivity.this, MailActivity.class);
+            Bundle bundle = new Bundle();
+            bundle.putSerializable("ListData", mLinkedList);
+            intent.putExtras(bundle);
+            startActivity(intent);
+            break;
+          default:
+            break;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -307,7 +312,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     /** Let Title reset, No matter MailActivity has been modified {CompanyName or BranchNumber} 。*/
     @Override
     protected void onResume() {
-        super.onResume();
-        loadActivityTitle();
+      super.onResume();
+      loadActivityTitle();
     }
 }

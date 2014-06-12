@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical" android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@color/white">
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="10dp">
+        <TextView
+                android:layout_marginTop="5dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/company_name"
+                android:textSize="14sp"
+                android:textColor="#000000"/>
+        <EditText
+                android:maxLength="15"
+                android:singleLine="true"
+                android:id="@+id/mEditTextCompanyName"
+                android:layout_marginTop="5dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp" />
+        <TextView
+                android:layout_marginTop="5dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#000000"
+                android:textSize="14sp"
+                android:text="@string/branch_number"/>
+        <EditText
+                android:id="@+id/mEditTextBranchNumber"
+                android:maxLength="15"
+                android:singleLine="true"
+                android:layout_marginTop="5dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="14sp"/>
+        <Button
+                android:layout_marginTop="10dp"
+                android:textSize="14sp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/black"
+                android:textColor="@color/white"
+                android:text="Save"
+                android:id="@+id/mButtonSave" />
+        <Button
+                android:layout_marginTop="10dp"
+                android:textSize="14sp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/black"
+                android:textColor="@color/white"
+                android:text="Mail"
+                android:id="@+id/mButtonMail" />
+        <ImageView
+                android:layout_marginTop="20dp"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:src="@drawable/bg_logo"/>
+        <TextView
+                android:id="@+id/mTextViewVisitHome"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/black"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/home_visite" />
+    </LinearLayout>
+
+</LinearLayout>
