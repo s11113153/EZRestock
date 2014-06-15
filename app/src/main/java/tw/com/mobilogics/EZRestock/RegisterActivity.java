@@ -26,7 +26,7 @@ public class RegisterActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         if (IsSmallerScreen(RegisterActivity.this)) {
-          setContentView(R.layout.activity_register_233);
+          setContentView(R.layout.activity_register_smaller);
         }else {
           setContentView(R.layout.activity_register);
         }

@@ -1,8 +1,13 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:EZRestock="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/action_download"
+        android:title="Download"
+        android:icon="@android:drawable/stat_sys_download"
+        EZRestock:showAsAction="always"/>
+    <item
         android:id="@+id/action_email"
         android:title="Email"
         android:icon="@android:drawable/sym_action_email"
-        EZRestock:showAsAction="ifRoom" />
-</menu> 
+        EZRestock:showAsAction="ifRoom"/>
+</menu>

@@ -51,7 +51,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (IsSmallerScreen(MainActivity.this)) {
-          setContentView(R.layout.activity_main_233);
+          setContentView(R.layout.activity_main_smaller);
         }else {
           setContentView(R.layout.activity_main);
         }
@@ -292,6 +292,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
             intent.putExtras(bundle);
             startActivity(intent);
             break;
+
+          case R.id.action_download :
+            break;
+
           default:
             break;
         }

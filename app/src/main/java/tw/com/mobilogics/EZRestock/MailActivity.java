@@ -15,20 +15,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
+import static tw.com.mobilogics.EZRestock.Utils.createEZRestockCachedFile;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockDir;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockFile;
+import static tw.com.mobilogics.EZRestock.Utils.writeEZRestockFile;
 
 public class MailActivity extends ActionBarActivity implements View.OnClickListener {
 
@@ -37,6 +37,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
   private EditText mEditTextCompanyName = null;
 
   private EditText mEditTextBranchNumber = null;
+
+  private EditText mEditTextReceiveMail = null;
 
   private Button mButtonSave = null;
 
@@ -58,7 +60,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (IsSmallerScreen(MailActivity.this)) {
-      setContentView(R.layout.activity_mail_233);
+      setContentView(R.layout.activity_mail_smaller);
     }else {
       setContentView(R.layout.avtivity_mail);
     }
@@ -71,8 +73,9 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     setTitle("Mail");
     mLinkedList = new LinkedList<String>((List) getIntent().getSerializableExtra("ListData"));
     mSharedPreferences = getSharedPreferences("setting", Context.MODE_PRIVATE);
-    mEditTextCompanyName = (EditText) findViewById(R.id.mEditTextCompanyName);
+    mEditTextCompanyName  = (EditText) findViewById(R.id.mEditTextCompanyName);
     mEditTextBranchNumber = (EditText) findViewById(R.id.mEditTextBranchNumber);
+    mEditTextReceiveMail  = (EditText) findViewById(R.id.mEditTextReceiveMail);
     mButtonSave = (Button) findViewById(R.id.mButtonSave);
     mButtonMail = (Button) findViewById(R.id.mButtonMail);
     mTextViewVisitHome = (TextView) findViewById(R.id.mTextViewVisitHome);
@@ -111,15 +114,19 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
       case R.id.mButtonSave:
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         boolean editResult = false;
-
+        // handle companyName
         if (!getCompanyName().equals("") && strFilter(getCompanyName())) {
           editor.putString("COMPANYNAME", getCompanyName());
           editResult = true;
         }
+        // handle branchNumber
         if (!getBranchNumber().equals("") && strFilter(getBranchNumber())) {
           editor.putString("BRANCHNUMBER", getBranchNumber());
           editResult = true;
         }
+        // handle receiveMail , isvalid email format
+        //..
+
         if (editResult) {
           editor.commit();
           mEditTextCompanyName.setText("");
@@ -129,6 +136,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         break;
 
       case R.id.mButtonMail:
+        File file = null;
         if (! checkInternetConnect(MailActivity.this)) {
           // notification Netwoek is no connect
           promptMessage("網路", "搜尋不到網路", MailActivity.this);
@@ -137,37 +145,39 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
             // notification database is no data exist
             promptMessage("資料庫", "目前沒有資料存在!", MailActivity.this);
           }else {
+            // handle Mail of fileName && mailSubject
             String dateTime = getDateTime();
             String date = dateTime.split(" ")[0].replace("-", "");
             String time = dateTime.split(" ")[1].replace(":", "");
             String companyName = mSharedPreferences.getString("COMPANYNAME", "");
             String branchNumber = mSharedPreferences.getString("BRANCHNUMBER", "");
 
-            String mailSubject = "ezRestock" + "_" + companyName + "_" + branchNumber + "_" + date
-                + "_" + time;
+            String mailSubject = "ezRestock" + "_" + companyName + "_" + branchNumber + "_" + date + "_" + time;
             String fileName = companyName + "_" + branchNumber + "_" + date + "_" + time + ".txt";
 
-            if (! mEZRestockDirIsExist) {
-              promptMessage("Notice", "EZRestock Directory is not exist", MailActivity.this);
-            } else {
-              File file;
+            if (! mEZRestockDirIsExist) { // use Internal Storage
+              try {
+                if ((file = createEZRestockCachedFile(MailActivity.this, fileName)) != null) {
+                  writeEZRestockFile(file, mLinkedList);
+                }
+                // open Gmail && send mail
+                Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
+                intent.setType("plain/text");
+                intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
+                intent.putExtra(Intent.EXTRA_STREAM,
+                    Uri.parse("content://" + CachedFileProvider.getAuthority() + "/" + fileName));
+                startActivity(intent);
+              }catch (IOException e) {
+                e.printStackTrace();
+              }
+            } else { // use External Stroage of EZRestock DIR
               try {
                 if ( (file = createEZRestockFile(EZRestockDirPath, fileName)) != null) {
-                  FileWriter fileWriter = new FileWriter(file);
-                  fileWriter.write("ProCode,Quantity,Inventory,Date,Time\n");
-                  for (int i = 0; i < mLinkedList.size(); i++) {
-                    //originFormat 4710063022883_5_0_2014-06-07 08:56:13
-                    //makeFormat   4710063022883,5,0,20130604,1659
-                    String s = mLinkedList.get(i).replace("_", ",").replace("-", "")
-                        .replace(" ", ",").replace(":", "");
-                    fileWriter.write(s + "\n");
-                  }
-                  fileWriter.close();
-
+                  writeEZRestockFile(file, mLinkedList);
                   // open Gmail && send mail
                   Intent intent = new Intent(Intent.ACTION_VIEW);
-                  intent.setClassName("com.google.android.gm",
-                      "com.google.android.gm.ComposeActivityGmail");
+                  intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
                   intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
                   intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
                   startActivity(intent);
