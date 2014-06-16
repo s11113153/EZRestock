@@ -1,5 +1,5 @@
 <resources>
     <!-- Default screen margins -->
-    <dimen name="activity_margin">16dp</dimen>
+    <dimen name="activity_margin">14dp</dimen>
     <dimen name="text_size">22sp</dimen>
 </resources>

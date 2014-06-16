@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -67,6 +68,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     initial();
 
     mEZRestockDirIsExist = createEZRestockDir(Environment.getExternalStorageDirectory().getPath(), "EZRestock");
+    // display current auto-receive-mail
+    mEditTextReceiveMail.setText("" + mSharedPreferences.getString("RECEIVEMAIL", ""));
   }
 
   private void initial() {
@@ -85,14 +88,9 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     mButtonMail.setOnClickListener(this);
   }
 
-  private String getCompanyName() {
-    return "" + mEditTextCompanyName.getText().toString().trim();
-  }
-
-  private String getBranchNumber() {
-    return "" + mEditTextBranchNumber.getText().toString().trim();
-  }
-
+  private String getCompanyName()  { return "" + mEditTextCompanyName.getText().toString().trim();  }
+  private String getBranchNumber() { return "" + mEditTextBranchNumber.getText().toString().trim(); }
+  private String getReceiveMail()  { return "" + mEditTextReceiveMail.getText().toString().trim();  }
 
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
@@ -115,18 +113,26 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         SharedPreferences.Editor editor = mSharedPreferences.edit();
         boolean editResult = false;
         // handle companyName
-        if (!getCompanyName().equals("") && strFilter(getCompanyName())) {
+        if (! getCompanyName().equals("") && strFilter(getCompanyName())) {
           editor.putString("COMPANYNAME", getCompanyName());
           editResult = true;
         }
         // handle branchNumber
-        if (!getBranchNumber().equals("") && strFilter(getBranchNumber())) {
+        if (! getBranchNumber().equals("") && strFilter(getBranchNumber())) {
           editor.putString("BRANCHNUMBER", getBranchNumber());
           editResult = true;
         }
-        // handle receiveMail , isvalid email format
-        //..
-
+        // handle receiveMail , and judge valid format of email
+        if (! getReceiveMail().equals("") && ! getReceiveMail().equals(mSharedPreferences.getString("RECEIVEMAIL",""))) {
+          if (! Linkify.addLinks(mEditTextReceiveMail.getText(), Linkify.EMAIL_ADDRESSES)) {
+            editResult = false;
+            promptMessage("Error", "Auto-Receive-Mail format error", MailActivity.this);
+          }else {
+            mEditTextReceiveMail.setText(getReceiveMail());// cancel Linkify Auto under Line && text of blue color
+            editor.putString("RECEIVEMAIL", getReceiveMail());
+            editResult = true;
+          }
+        }
         if (editResult) {
           editor.commit();
           mEditTextCompanyName.setText("");
@@ -162,6 +168,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                 }
                 // open Gmail && send mail
                 Intent intent = new Intent(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{
+                    mSharedPreferences.getString("RECEIVEMAIL", "")});
                 intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
                 intent.setType("plain/text");
                 intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
@@ -177,6 +185,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
                   writeEZRestockFile(file, mLinkedList);
                   // open Gmail && send mail
                   Intent intent = new Intent(Intent.ACTION_VIEW);
+                  intent.putExtra(Intent.EXTRA_EMAIL, new String[]{
+                      mSharedPreferences.getString("RECEIVEMAIL", "")});
                   intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
                   intent.putExtra(Intent.EXTRA_SUBJECT, mailSubject);
                   intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
