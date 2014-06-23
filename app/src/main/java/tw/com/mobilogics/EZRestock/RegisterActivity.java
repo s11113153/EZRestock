@@ -18,7 +18,6 @@ public class RegisterActivity extends Activity {
     private Button mButtonStar = null;
     private EditText mEditTextCompanyName = null;
     private EditText mEditTextBranchNumber = null;
-
     private SharedPreferences mSharedPreferences = null;
 
     @Override

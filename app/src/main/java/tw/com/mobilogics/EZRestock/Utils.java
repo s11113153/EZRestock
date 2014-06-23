@@ -1,9 +1,14 @@
 package tw.com.mobilogics.EZRestock;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -32,6 +37,7 @@ final public class Utils {
 
     private final static String mState = Environment.getExternalStorageState();
     private final static DisplayMetrics mDisplayMetrics = new DisplayMetrics();
+    private static DBHelper mDBHelper;
 
     /**
      * only uses Chinese && English && _ Character
@@ -164,4 +170,45 @@ final public class Utils {
       }
       return false;
     }
+
+  /** Uses scanNumber to query ProID From ProductCode table */
+  public static int searchProID(String scanNumber, String table, SQLiteDatabase mSQLiteDatabaseRead) {
+    Cursor cursor = mSQLiteDatabaseRead.rawQuery(
+        "select ProID from " + table + " Where ProCode=?", new String[]{scanNumber});
+    if (cursor.moveToFirst()) {
+      int index = Integer.parseInt(cursor.getString(0));
+      cursor.close();
+      return index;
+    }
+    return -1;
+  }
+
+  /** According ProID to query ProCode, Barcode, ProDesc, ProUnitS, ProUnitL, PackageQ, SupCode  From Products table && return JSON data */
+  public static JSONObject searchOneOfProductData(int index, String table, SQLiteDatabase mSQLiteDatabaseRead) {
+    Cursor cursor = mSQLiteDatabaseRead.rawQuery("select ProCode, Barcode, ProDesc, ProUnitS, ProUnitL, PackageQ, SupCode from " + table + " Where ProID=?", new String[]{"" + index});
+    if (cursor.moveToFirst()) {
+      try {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("ProCode",  cursor.getString(0));
+        jsonObject.put("Barcode", cursor.getString(1));
+        jsonObject.put("ProDesc",  cursor.getString(2));
+        jsonObject.put("ProUnitS", cursor.getString(3));
+        jsonObject.put("ProUnitL", cursor.getString(4));
+        jsonObject.put("PackageQ", cursor.getString(5));
+        jsonObject.put("SupCode",  cursor.getString(6));
+        cursor.close();
+        return jsonObject;
+      }catch (JSONException e) {
+        e.printStackTrace();
+      }
+    }
+    return null;
+  }
+
+  public static void setSQLiteDatabaseInsrance(DBHelper dbHelper) {
+    mDBHelper = dbHelper;
+  }
+  public static DBHelper getSQLiteDatabaseInsrance() {
+    return mDBHelper;
+  }
 }

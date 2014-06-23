@@ -1,5 +1,8 @@
 package tw.com.mobilogics.EZRestock;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
@@ -12,9 +15,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
 import android.text.InputType;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +28,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,10 +43,15 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.LinkedList;
 
+
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
+import static tw.com.mobilogics.EZRestock.Utils.getSQLiteDatabaseInsrance;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
+import static tw.com.mobilogics.EZRestock.Utils.searchOneOfProductData;
+import static tw.com.mobilogics.EZRestock.Utils.searchProID;
+import static tw.com.mobilogics.EZRestock.Utils.setSQLiteDatabaseInsrance;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
   private DBHelper mDBHelper = null;
@@ -54,20 +64,32 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   private EditText mEditTextScanNumber = null;
   private Button mButtonScan = null;
   private ListView mListView = null;
+  private TextView mTextViewProDesc = null;
+  private ImageView mImageEditProduct = null;
   private long mId = -1;
-  private final String TABLE_MANAGEMENT = "Management";
+
+  private static final String M_TABLE_MANAGEMENT = "Management";
+  private static final String M_TABLE_PRODUCTCODE = "ProductCode";
+  private static final String M_TABLE_PRODUCRS = "Products";
+
   private LinkedList<String> mLinkedList = new LinkedList<String>();
   private ArrayList<String> mArrayListProducts = new ArrayList<String>();
   private ArrayList<String> mArrayListProductCode = new ArrayList<String>();
   private SQLiteDatabase mSQLiteDatabaseWrite = null;
   private SQLiteDatabase mSQLiteDatabaseRead = null;
 
+  private JSONObject mJSONObject = null;
+  private static SlidingMainFragment mSlidingUpMainFragment = new SlidingMainFragment();
+  private static FragmentManager mFragmentManager;
+  private boolean M_UI_STATE = false;
+
   @Override
-    protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     if (IsSmallerScreen(MainActivity.this)) {
       setContentView(R.layout.activity_main_smaller);
-    }else {
+    }
+    else {
       setContentView(R.layout.activity_main);
     }
     initial();
@@ -77,13 +99,40 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     mButtonScan.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if ( ! getScanNumber().equals("") && ! getQuantity().equals("") && !getInventory().equals("")) {
+        String select = selectManagement(getScanNumber()); // if return "" , no Data exist
+
+        if (!getScanNumber().equals("") && !select.equals("")) {
+          if (0 == Double.parseDouble(getQuantity()) && 0 == Double.parseDouble(getInventory())) { // query
+            // According to select Result , set EditTex{Quantity && Inventory} values。
+            // on the first line is display select result && other lines are sort order by DateTime
+            String [] mResult = select.split("_");
+            mEditTextQuantity.setText(mResult[1]); // Quantity
+            mEditTextInventory.setText(mResult[2]);// Inventory
+            mEditTextQuantity.requestFocus();
+            refreshListManagementData();
+            setListDataOrderByManagementSelectId(getScanNumber());
+            mListView.setAdapter(mListAdapter);
+          }else { // update
+            updateManagement(getSelectId());
+            refreshListManagementData();
+            mListView.setAdapter(mListAdapter);
+          }
+
+        }else if (!getScanNumber().equals("") && select.equals("")) { // insert into
+          InsertManagement(getScanNumber(), Integer.parseInt(getQuantity()),
+              Integer.parseInt(getInventory()));
+          refreshListManagementData();
+          mListView.setAdapter(mListAdapter);
+        }
+        /*
+        if (!getScanNumber().equals("") && !getQuantity().equals("") && !getInventory().equals("")) {
           String select = selectManagement(getScanNumber()); // if return "" , no Data exist
           // Execution select
           if (0 == Double.parseDouble(getQuantity()) && 0 == Double.parseDouble(getInventory())) {
             if (select.equals("")) {
               // Cancel Action
-            } else {
+            }
+            else {
               // According to select Result , set EditTex{Quantity && Inventory} values。
               // on the first line is display select result && other lines are sort order by DateTime
               String [] mResult = select.split("_");
@@ -97,7 +146,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
           }else {
             // Action for Insert OR Update
             if (select.equals("")) {// Execution insert
-              InsertManagement(getScanNumber(), getQuantity(), getInventory());
+              InsertManagement(getScanNumber(), Integer.parseInt(getQuantity()), Integer.parseInt(getInventory()));
               refreshListManagementData();
               mListView.setAdapter(mListAdapter);
             }else {// Execution update
@@ -106,11 +155,31 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
               mListView.setAdapter(mListAdapter);
             }
           }
-        }else {
-          Toast.makeText(MainActivity.this, "Scan Number is null", Toast.LENGTH_LONG).show();
+        }*/
+      }
+    });
+
+    mImageEditProduct.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        if (null != mJSONObject) {
+          Intent intent = new Intent(MainActivity.this, EditProductActivity.class);
+          intent.putExtra("EDIT_PRODUCT_JSON_DATA", mJSONObject.toString());
+          startActivity(intent);
         }
       }
     });
+
+    mFragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+      @Override
+      public void onBackStackChanged() {
+        if (!(M_UI_STATE = ! M_UI_STATE)) { showUI(); }
+        else {
+          hideUI();
+        }
+      }
+    });
+
   }
   private void initial() {
     mInflater =  (LayoutInflater) this.getSystemService(LAYOUT_INFLATER_SERVICE);
@@ -126,14 +195,23 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
 
     mListView = (ListView) findViewById(R.id.mListView);
 
+    mTextViewProDesc = (TextView) findViewById(R.id.mTextViewProDesc);
+
+    mImageEditProduct = (ImageView) findViewById(R.id.mImageEditProduct);
+
     mEditTextQuantity.setOnFocusChangeListener(this);
     mEditTextInventory.setOnFocusChangeListener(this);
+    mEditTextScanNumber.setOnFocusChangeListener(this);
     mButtonScan.setOnFocusChangeListener(this);
+
     openDB("Database");
-    mSQLiteDatabaseWrite = mDBHelper.getWritableDatabase();
-    mSQLiteDatabaseRead = mDBHelper.getReadableDatabase();
+    setSQLiteDatabaseInsrance(mDBHelper);
+    mSQLiteDatabaseWrite = getSQLiteDatabaseInsrance().getWritableDatabase();
+    mSQLiteDatabaseRead = getSQLiteDatabaseInsrance().getReadableDatabase();
 
     mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+    mFragmentManager = getSupportFragmentManager();
+
   }
 
   private void loadActivityTitle() {
@@ -170,7 +248,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   private String selectManagement(String scanNumber) {
     String quantity = "" , inventory = "";
     Cursor cursor = mSQLiteDatabaseRead.rawQuery(
-        "select Id, ScanNumber, Quantity, Inventory from " + TABLE_MANAGEMENT + " Where ScanNumber=?", new String[]{scanNumber});
+        "select Id, ScanNumber, Quantity, Inventory from " + M_TABLE_MANAGEMENT + " Where ScanNumber=?", new String[]{scanNumber});
     if (cursor.moveToFirst()) {
       setSelectId(Integer.parseInt(cursor.getString(0)));
       quantity = "" + cursor.getString(2);
@@ -185,13 +263,13 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   }
 
   /** insert table From Management */
-  private void InsertManagement(String scanNumber, String quantity, String inventory) {
+  private void InsertManagement(String scanNumber, int quantity, int inventory) {
     ContentValues values = new ContentValues();
     values.put("ScanNumber", scanNumber);
     values.put("Quantity"  , quantity);
     values.put("Inventory" , inventory);
     values.put("createTime" , getDateTime());
-    if (-1 == mSQLiteDatabaseWrite.insert(TABLE_MANAGEMENT, null, values)) {
+    if (-1 == mSQLiteDatabaseWrite.insert(M_TABLE_MANAGEMENT, null, values)) {
       promptMessage("Notice", "Insert Into Fail", MainActivity.this);
     }
   }
@@ -202,7 +280,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     values.put("Quantity"  , getQuantity());
     values.put("Inventory" , getInventory());
     values.put("createTime", getDateTime());
-    if (-1 == mSQLiteDatabaseWrite.update(TABLE_MANAGEMENT, values, "Id=" + id, null)) {
+    if (-1 == mSQLiteDatabaseWrite.update(M_TABLE_MANAGEMENT, values, "Id=" + id, null)) {
       promptMessage("Notice", "Update Fail", MainActivity.this);
     }
     setSelectId(-1);
@@ -229,7 +307,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   private void refreshListManagementData() {
     mLinkedList.clear();
     Cursor cursor = mSQLiteDatabaseRead.rawQuery("SELECT ScanNumber, Quantity, Inventory, createTime" +
-        " FROM " + TABLE_MANAGEMENT + " ORDER BY datetime(createTime) DESC", null);
+        " FROM " + M_TABLE_MANAGEMENT + " ORDER BY datetime(createTime) DESC", null);
     int count = 0;
     while (cursor.moveToNext()) {
       String rowQuery = cursor.getString(0) + "_" + cursor.getString(1) + "_" + cursor.getString(2) + "_" +cursor.getString(3);
@@ -245,13 +323,36 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
           if (getQuantity().equals("")) {
             mEditTextQuantity.setText("0");
           }
-        break;
-
+          break;
         case R.id.mEditTextInventory:
           if (getInventory().equals("")) {
             mEditTextInventory.setText("0");
           }
-        break;
+          break;
+        case R.id.mEditTextScanNumber:
+          // According scanNumber display :
+          // "" :  please Scan to get ProDesc ,
+          // query result != -1 : ProductName
+          // query result == -1 :new Product
+          mTextViewProDesc.setText("New Products");
+          mImageEditProduct.setVisibility(View.INVISIBLE);
+          // query scanNumber From Product table && display result
+          if (!getScanNumber().equals("")) {
+            int selectIndex = searchProID(getScanNumber(), M_TABLE_PRODUCTCODE, mSQLiteDatabaseRead);
+            if ( -1 != selectIndex) {
+              try {
+                mJSONObject = searchOneOfProductData(selectIndex, M_TABLE_PRODUCRS, mSQLiteDatabaseRead);
+                String ProDesc = mJSONObject.get("ProDesc").toString().trim();
+                mTextViewProDesc.setText(ProDesc);
+                mImageEditProduct.setVisibility(View.VISIBLE);
+              }catch (JSONException e) {
+                e.printStackTrace();
+              }
+            }
+          }else if (getScanNumber().equals("")){
+            mTextViewProDesc.setText("please Scan to get ProDesc");
+          }
+          break;
       }
     } else {
       if (R.id.mButtonScan == v.getId()) {
@@ -268,9 +369,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     }
 
     @Override
-    public Object getItem(int position) {
-      return mLinkedList.get(position);
-    }
+    public Object getItem(int position) { return mLinkedList.get(position); }
 
     @Override
     public long getItemId(int position) {
@@ -287,6 +386,18 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
       rowScanNumber.setText(row[0]);
       rowQuantity.setText(row[1]);
       rowInventory.setText(row[2]);
+      convertView.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Bundle bundle = new Bundle();
+          bundle.putSerializable("ListData", mLinkedList);
+          mSlidingUpMainFragment.setArguments(bundle);
+          FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
+          fragmentTransaction.replace(R.id.contentFrame, mSlidingUpMainFragment);
+          fragmentTransaction.addToBackStack(null);
+          fragmentTransaction.commit();
+        }
+      });
       return convertView;
     }
   }
@@ -319,7 +430,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
           builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-              new DownloadDB().execute();
+              new DownloadAsync().execute();
             }
           });
           builder.setNegativeButton("No", null);
@@ -350,15 +461,11 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   }
 
 
-  /** open new Thread, handle download a&& update DB */
-  private class DownloadDB extends AsyncTask<Void, Integer, Boolean > {
+  /** open new Thread, handle download a&& update data to DB */
+  private class DownloadAsync extends AsyncTask<Void, Integer, Boolean > {
     private ProgressDialog mProgressDialog;
-    private final String mDownloadProducts     = "http://cdn.aps.pos.tw/Products.txt";
-    private final String mDownloadProductCode  = "http://cdn.aps.pos.tw/ProductCode.txt";
-    private final String SQL_FOR_INSERT_ProductCode = "INSERT INTO ProductCode (PCoID, ProID, ProCode, SupID) VALUES (?, ?, ?, ?)";
-    private final String SQL_FOR_UPDATE_ProductCode = "UPDATE ProductCode SET ProID=?, ProCode=?, SupID=? WHERE PCoID=?";
-    private final String SQL_FOR_INSERT_Products = "INSERT INTO Products (ProID, ProCode, BarCode, ProDesc, ProUnitS, ProUnitL, PackageQ, SupCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-    private final String SQL_FOR_UPDATE_Products= "UPDATE Products SET ProCode=?, BarCode=?, ProDesc=?, ProUnitS=?, ProUnitL=?, PackageQ=?, SupCode=? WHERE ProID=?";
+    private static final String M_DOWNLOAD_PRODUCTS = "http://cdn.aps.pos.tw/Products.txt";
+    private static final String M_DOWNLOAD_PRODUCTCODE = "http://cdn.aps.pos.tw/ProductCode.txt";
     private SQLiteStatement mInsertStatement, mUpdateStatement;
 
     @Override
@@ -380,9 +487,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
       String line;
       double rate;
       int count = 0;
+
       try {
         // Download ProductCode
-        httpURLConnection = getURLConnectInstance(mDownloadProductCode);
+        httpURLConnection = getURLConnectInstance(M_DOWNLOAD_PRODUCTCODE);
         httpURLConnection.connect();
         if (HttpURLConnection.HTTP_OK == httpURLConnection.getResponseCode()) {
           inputStream = httpURLConnection.getInputStream();
@@ -392,7 +500,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         }
 
         //Download Products
-        httpURLConnection = getURLConnectInstance(mDownloadProducts);
+        httpURLConnection = getURLConnectInstance(M_DOWNLOAD_PRODUCTS);
         httpURLConnection.connect();
         if (HttpURLConnection.HTTP_OK == httpURLConnection.getResponseCode()) {
           inputStream = httpURLConnection.getInputStream();
@@ -403,23 +511,27 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
 
         // download rate
         rate = 100.0 / (mArrayListProductCode.size()+ mArrayListProducts.size());
-
         mSQLiteDatabaseWrite.beginTransaction();
-        mInsertStatement = mSQLiteDatabaseWrite.compileStatement(SQL_FOR_INSERT_ProductCode);
-        mUpdateStatement = mSQLiteDatabaseWrite.compileStatement(SQL_FOR_UPDATE_ProductCode);
-        for (int i=0; i<mArrayListProductCode.size(); i++) {
+
+        // judge uses Update or Insert for ProductCode Table
+        mInsertStatement = mSQLiteDatabaseWrite.compileStatement("INSERT INTO ProductCode (PCoID, ProID, ProCode, SupID) VALUES (?, ?, ?, ?)");
+        mUpdateStatement = mSQLiteDatabaseWrite.compileStatement("UPDATE ProductCode SET ProID=?, ProCode=?, SupID=? WHERE PCoID=?");
+        for (int i = 0; i < mArrayListProductCode.size(); i++) {
           String srr[] = mArrayListProductCode.get(i).split(",");
-          Cursor cursor = mSQLiteDatabaseWrite.rawQuery("SELECT PCoID FROM ProductCode WHERE PCoID=?", new String[]{srr[0]});
+          Cursor cursor = mSQLiteDatabaseRead.rawQuery("SELECT PCoID FROM ProductCode WHERE PCoID=?", new String[]{srr[0]});
           count = handleDownloadDataToDB(srr, cursor, mInsertStatement, mUpdateStatement, count);
           cursor.close();
           publishProgress(Integer.valueOf((int) (count++ * rate)));
         }
 
-        mInsertStatement = mSQLiteDatabaseWrite.compileStatement(SQL_FOR_INSERT_Products);
-        mUpdateStatement = mSQLiteDatabaseWrite.compileStatement(SQL_FOR_UPDATE_Products);
-        for (int i=0; i<mArrayListProducts.size(); i++) {
+        // judge uses Update or Insert for Products Table
+        mInsertStatement = mSQLiteDatabaseWrite.compileStatement(
+            "INSERT INTO Products (ProID, ProCode, BarCode, ProDesc, ProUnitS, ProUnitL, PackageQ, SupCode) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        mUpdateStatement = mSQLiteDatabaseWrite.compileStatement(
+            "UPDATE Products SET ProCode=?, BarCode=?, ProDesc=?, ProUnitS=?, ProUnitL=?, PackageQ=?, SupCode=? WHERE ProID=?");
+        for (int i = 0; i < mArrayListProducts.size(); i++) {
           String srr[] = mArrayListProducts.get(i).split(",");
-          Cursor cursor = mSQLiteDatabaseWrite.rawQuery("SELECT ProID FROM Products WHERE ProID=?", new String[]{srr[0]});
+          Cursor cursor = mSQLiteDatabaseRead.rawQuery("SELECT ProID FROM Products WHERE ProID=?", new String[]{srr[0]});
           count = handleDownloadDataToDB(srr, cursor, mInsertStatement, mUpdateStatement, count);
           cursor.close();
           publishProgress(Integer.valueOf((int) (count++ * rate)));
@@ -501,5 +613,24 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
         Toast.makeText(MainActivity.this, "更新完畢", Toast.LENGTH_LONG).show();
       }
     }
+  }
+
+  private void hideUI() {
+    mEditTextScanNumber.setVisibility(View.INVISIBLE);
+    mEditTextQuantity.setVisibility(View.INVISIBLE);
+    mEditTextInventory.setVisibility(View.INVISIBLE);
+    mImageEditProduct.setVisibility(View.INVISIBLE);
+    mButtonScan.setVisibility(View.INVISIBLE);
+    mTextViewProDesc.setVisibility(View.INVISIBLE);
+    mListView.setVisibility(View.INVISIBLE);
+  }
+  private void showUI() {
+    mEditTextScanNumber.setVisibility(View.VISIBLE);
+    mEditTextQuantity.setVisibility(View.VISIBLE);
+    mEditTextInventory.setVisibility(View.VISIBLE);
+    mImageEditProduct.setVisibility(View.VISIBLE);
+    mButtonScan.setVisibility(View.VISIBLE);
+    mTextViewProDesc.setVisibility(View.VISIBLE);
+    mListView.setVisibility(View.VISIBLE);
   }
 }

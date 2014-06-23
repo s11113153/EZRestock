@@ -8,6 +8,6 @@
     <item
         android:id="@+id/action_email"
         android:title="Email"
-        android:icon="@android:drawable/sym_action_email"
+        android:icon="@android:drawable/ic_dialog_email"
         EZRestock:showAsAction="ifRoom"/>
 </menu>

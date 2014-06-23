@@ -27,6 +27,8 @@
         <provider android:grantUriPermissions="true"
                   android:authorities="tw.com.mobilogics.EZRestock.provider"
                   android:name="tw.com.mobilogics.EZRestock.CachedFileProvider"/>
+        <activity android:name="tw.com.mobilogics.EZRestock.EditProductActivity"
+                  android:screenOrientation="portrait"/>
     </application>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
