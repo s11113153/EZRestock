@@ -21,7 +21,8 @@
         <activity android:name="tw.com.mobilogics.EZRestock.RegisterActivity"
                   android:screenOrientation="portrait"/>
         <activity android:name="tw.com.mobilogics.EZRestock.MainActivity"
-                  android:screenOrientation="portrait"/>
+                  android:screenOrientation="portrait"
+                  android:windowSoftInputMode="adjustNothing"/>
         <activity android:name="tw.com.mobilogics.EZRestock.MailActivity"
                   android:screenOrientation="portrait"/>
         <provider android:grantUriPermissions="true"

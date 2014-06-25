@@ -18,9 +18,13 @@ import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 
 public class RegisterActivity extends Activity {
   private Button mButtonStar = null;
+
   private EditText mEditTextCompanyName = null;
+
   private EditText mEditTextBranchNumber = null;
+
   private SharedPreferences mSharedPreferences = null;
+
   private TextView mTextViewRegisterTitle;
 
   @Override
@@ -63,6 +67,7 @@ public class RegisterActivity extends Activity {
         }
       }
     });
+
     mTextViewRegisterTitle.setTypeface(getFontFamily(RegisterActivity.this, "Quicksand-Bold.ttf"));
   }
 

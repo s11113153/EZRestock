@@ -59,33 +59,55 @@ import static tw.com.mobilogics.EZRestock.Utils.setSQLiteDatabaseInsrance;
 import static tw.com.mobilogics.EZRestock.Utils.setActionBarFontFamily;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
+
   private DBHelper mDBHelper = null;
+
   private SharedPreferences mSharedPreferences = null;
+
   private LayoutInflater mInflater = null;
+
   private InputMethodManager mInputMethodManager = null;
+
   private ListAdapter mListAdapter = new ListAdapter();
+
   private EditText mEditTextQuantity = null;
+
   private EditText mEditTextInventory = null;
+
   private EditText mEditTextScanNumber = null;
+
   private Button mButtonScan = null;
+
   private ListView mListView = null;
+
   private TextView mTextViewProDesc = null;
+
   private ImageView mImageEditProduct = null;
+
   private long mId = -1;
 
   private static final String M_TABLE_MANAGEMENT = "Management";
+
   private static final String M_TABLE_PRODUCTCODE = "ProductCode";
+
   private static final String M_TABLE_PRODUCRS = "Products";
 
   private LinkedList<String> mLinkedList = new LinkedList<String>();
+
   private ArrayList<String> mArrayListProducts = new ArrayList<String>();
+
   private ArrayList<String> mArrayListProductCode = new ArrayList<String>();
+
   private SQLiteDatabase mSQLiteDatabaseWrite = null;
+
   private SQLiteDatabase mSQLiteDatabaseRead = null;
 
   private JSONObject mJSONObject = null;
+
   private static SlidingMainFragment mSlidingUpMainFragment = new SlidingMainFragment();
+
   private static FragmentManager mFragmentManager;
+
   private boolean M_UI_STATE = false;
 
   @Override
@@ -105,6 +127,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
       @Override
       public void onClick(View v) {
         String select = selectManagement(getScanNumber()); // if return "" , no Data exist
+
         if (!getScanNumber().equals("")) { setEditProductView(); };
 
         try {
@@ -202,10 +225,12 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
 
     mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
     mFragmentManager = getSupportFragmentManager();
+
+    // Setting ActionBar Theme
     setActionBarFontFamily(MainActivity.this, "Quicksand-Bold.ttf");
     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#e6e6e6")));
 
-    // setting unconnect
+    // Setting Icon Of UnConnect
     getSupportActionBar().setIcon(R.drawable.ic_unconnect);
   }
 
@@ -603,7 +628,6 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     mButtonScan.setEnabled(enable);
     mListView.setEnabled(enable);
   }
-
 
   /**
    * query scanNumber from Product table && according result to display View

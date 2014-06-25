@@ -3,19 +3,16 @@ package tw.com.mobilogics.EZRestock;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
-import android.widget.Toast;
-
 
 public class DBHelper extends SQLiteOpenHelper {
-  //private final String TableName = "Management";
   private final String TABLE_MANAGEMENT = "Management";
   private final String TABLE_PRODUCTS = "Products";
   private final String TABLE_PRODUCTCODE = "ProductCode";
 
   public DBHelper(Context context, String dbName, int dbVersion) {
-        super(context, dbName, null, dbVersion);
+    super(context, dbName, null, dbVersion);
   }
+
   @Override
   public void onCreate(SQLiteDatabase db) {
     // create Management table
@@ -61,7 +58,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
   @Override
   public void onOpen(SQLiteDatabase db) {
-        super.onOpen(db);
-    }
+    super.onOpen(db);
+  }
 
 }

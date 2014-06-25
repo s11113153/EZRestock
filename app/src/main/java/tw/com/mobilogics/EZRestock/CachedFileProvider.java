@@ -13,16 +13,16 @@ import java.io.FileNotFoundException;
 
 
 public class CachedFileProvider extends ContentProvider {
+
   private static final String AUTHORITY = "tw.com.mobilogics.EZRestock.provider";
+
   private static final UriMatcher mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
 
   static {
     mUriMatcher.addURI(AUTHORITY, "*", 1);
   }
 
-  public static String getAuthority() {
-    return AUTHORITY;
-  }
+  public static String getAuthority() { return AUTHORITY; }
 
   @Override
   public boolean onCreate() { return true; }
@@ -41,7 +41,6 @@ public class CachedFileProvider extends ContentProvider {
 
   @Override
   public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) { return 0; }
-
 
   @Override
   public ParcelFileDescriptor openFile(Uri uri, String mode) throws FileNotFoundException {

@@ -24,10 +24,15 @@ import static tw.com.mobilogics.EZRestock.Utils.searchOneOfProductData;
 import static tw.com.mobilogics.EZRestock.Utils.searchProID;
 
 public class SlidingMainFragment extends android.support.v4.app.Fragment {
+
   private SlidingDrawer mSlidingDrawer;
+
   private ImageView mImageViewSlidingUp;
+
   private ListView mListView;
+
   private LinkedList<String> mLinkedList;
+
   private JSONObject mJSONObject;
 
   @Override
@@ -43,6 +48,7 @@ public class SlidingMainFragment extends android.support.v4.app.Fragment {
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     mLinkedList = new LinkedList<String>((List) getArguments().getSerializable("ListData"));
+
     mListView.setAdapter(new BaseAdapter() {
       @Override
       public int getCount() {
@@ -93,8 +99,12 @@ public class SlidingMainFragment extends android.support.v4.app.Fragment {
       }
     });
 
-
-    mSlidingDrawer.animateOpen();
+    mSlidingDrawer.post(new Runnable() {
+      @Override
+      public void run() {
+        mSlidingDrawer.animateOpen();
+      }
+    });
 
     mSlidingDrawer.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
       @Override

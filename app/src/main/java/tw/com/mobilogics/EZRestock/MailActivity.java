@@ -49,8 +49,6 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
 
   private Button mButtonMail = null;
 
-  //private TextView mTextViewVisitHome = null;
-
   private ImageView mImageViewVisitHome = null;
 
   private SharedPreferences mSharedPreferences = null;
@@ -73,8 +71,9 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     }
     initial();
 
+    // EZRestock Directory Whether exists
     mEZRestockDirIsExist = createEZRestockDir(Environment.getExternalStorageDirectory().getPath(), "EZRestock");
-    // display current auto-receive-mail
+    // IF Setting MailAddress Then Display MailAddress
     mEditTextReceiveMail.setText("" + mSharedPreferences.getString("RECEIVEMAIL", ""));
   }
 
@@ -93,12 +92,12 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     mButtonSave.setOnClickListener(this);
     mButtonMail.setOnClickListener(this);
 
-    //setting ActionBar
+    // Setting ActionBar Theme
     setActionBarFontFamily(MailActivity.this, "Quicksand-Bold.ttf");
     getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#e6e6e6")));
     getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Mail</font>"));
 
-    // setting unconnect
+    // Setting Icon Of UnConnect
     getSupportActionBar().setIcon(R.drawable.ic_unconnect);
   }
 
@@ -114,9 +113,8 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
 
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    if (R.id.action_revert == item.getItemId()) {
-      finish();
-    }
+    if (R.id.action_revert == item.getItemId()) { finish(); }
+
     return super.onOptionsItemSelected(item);
   }
 

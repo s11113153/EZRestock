@@ -6,12 +6,12 @@
     android:layout_marginLeft="10dp"
     android:layout_marginRight="10dp">
     <LinearLayout
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="150dp"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:background="#ffffff"/>
     <SlidingDrawer
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="150dp"
         android:id="@+id/mSlidingDrawer"
         android:layout_width="match_parent"
         android:layout_height="400dp"
@@ -22,6 +22,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <ImageView
+            android:paddingTop="10dp"
+            android:paddingBottom="20dp"
             android:id="@id/mImageViewSlidingUp"
             android:src="@android:drawable/arrow_up_float"
             android:layout_width="50dp"
