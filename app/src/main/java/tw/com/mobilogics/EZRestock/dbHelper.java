@@ -22,8 +22,8 @@ public class DBHelper extends SQLiteOpenHelper {
     final String SQL = "CREATE TABLE IF NOT EXISTS " + TABLE_MANAGEMENT + "( " +
         "Id INTEGER PRIMARY KEY AUTOINCREMENT, " +
         "ScanNumber VARCHAR(20), " +
-        "Quantity VARCHAR(20), " + // DOUBLE type => if value > 10000 then display : 1.E+
-        "Inventory VARCHAR(20), " +
+        "Quantity   DOUBLE, " +
+        "Inventory  DOUBLE, " +
         "createTime DATETIME DEFAULT CURRENT_TIMESTAMP " +
         ");";
     db.execSQL(SQL);

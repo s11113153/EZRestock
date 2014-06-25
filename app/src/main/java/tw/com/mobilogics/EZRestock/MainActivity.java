@@ -13,11 +13,14 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteStatement;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -46,12 +49,14 @@ import java.util.LinkedList;
 
 import static tw.com.mobilogics.EZRestock.Utils.checkInternetConnect;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
+import static tw.com.mobilogics.EZRestock.Utils.getFontFamily;
 import static tw.com.mobilogics.EZRestock.Utils.getSQLiteDatabaseInsrance;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
 import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
 import static tw.com.mobilogics.EZRestock.Utils.searchOneOfProductData;
 import static tw.com.mobilogics.EZRestock.Utils.searchProID;
 import static tw.com.mobilogics.EZRestock.Utils.setSQLiteDatabaseInsrance;
+import static tw.com.mobilogics.EZRestock.Utils.setActionBarFontFamily;
 
 public class MainActivity extends ActionBarActivity implements View.OnFocusChangeListener {
   private DBHelper mDBHelper = null;
@@ -100,39 +105,14 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
       @Override
       public void onClick(View v) {
         String select = selectManagement(getScanNumber()); // if return "" , no Data exist
+        if (!getScanNumber().equals("")) { setEditProductView(); };
 
-        if (!getScanNumber().equals("") && !select.equals("")) {
-          if (0 == Double.parseDouble(getQuantity()) && 0 == Double.parseDouble(getInventory())) { // query
-            // According to select Result , set EditTex{Quantity && Inventory} values。
-            // on the first line is display select result && other lines are sort order by DateTime
-            String [] mResult = select.split("_");
-            mEditTextQuantity.setText(mResult[1]); // Quantity
-            mEditTextInventory.setText(mResult[2]);// Inventory
-            mEditTextQuantity.requestFocus();
-            refreshListManagementData();
-            setListDataOrderByManagementSelectId(getScanNumber());
-            mListView.setAdapter(mListAdapter);
-          }else { // update
-            updateManagement(getSelectId());
-            refreshListManagementData();
-            mListView.setAdapter(mListAdapter);
-          }
+        try {
+          double quantity  = Double.parseDouble(getQuantity());
+          double inventory = Double.parseDouble(getInventory());
 
-        }else if (!getScanNumber().equals("") && select.equals("")) { // insert into
-          InsertManagement(getScanNumber(), Integer.parseInt(getQuantity()),
-              Integer.parseInt(getInventory()));
-          refreshListManagementData();
-          mListView.setAdapter(mListAdapter);
-        }
-        /*
-        if (!getScanNumber().equals("") && !getQuantity().equals("") && !getInventory().equals("")) {
-          String select = selectManagement(getScanNumber()); // if return "" , no Data exist
-          // Execution select
-          if (0 == Double.parseDouble(getQuantity()) && 0 == Double.parseDouble(getInventory())) {
-            if (select.equals("")) {
-              // Cancel Action
-            }
-            else {
+          if (!getScanNumber().equals("") && !select.equals("")) {
+            if (0 == quantity && 0 == inventory) { // query
               // According to select Result , set EditTex{Quantity && Inventory} values。
               // on the first line is display select result && other lines are sort order by DateTime
               String [] mResult = select.split("_");
@@ -142,20 +122,20 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
               refreshListManagementData();
               setListDataOrderByManagementSelectId(getScanNumber());
               mListView.setAdapter(mListAdapter);
-            }
-          }else {
-            // Action for Insert OR Update
-            if (select.equals("")) {// Execution insert
-              InsertManagement(getScanNumber(), Integer.parseInt(getQuantity()), Integer.parseInt(getInventory()));
-              refreshListManagementData();
-              mListView.setAdapter(mListAdapter);
-            }else {// Execution update
+            }else { // update , display result
               updateManagement(getSelectId());
               refreshListManagementData();
               mListView.setAdapter(mListAdapter);
             }
+          }else if (!getScanNumber().equals("") && select.equals("")
+              && (Double.parseDouble(getQuantity()) != 0 || Double.parseDouble(getInventory()) != 0)) { // insert into
+            InsertManagement(getScanNumber(), Integer.parseInt(getQuantity()), Integer.parseInt(getInventory()));
+            refreshListManagementData();
+            mListView.setAdapter(mListAdapter);
           }
-        }*/
+        }catch (NumberFormatException e) {
+          e.printStackTrace();
+        }
       }
     });
 
@@ -173,9 +153,13 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     mFragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
       @Override
       public void onBackStackChanged() {
-        if (!(M_UI_STATE = ! M_UI_STATE)) { showUI(); }
+        if (!(M_UI_STATE = ! M_UI_STATE)) {
+          setUIWidgetEnable(true);
+          mListView.setVisibility(View.VISIBLE);
+        }
         else {
-          hideUI();
+          setUIWidgetEnable(false);
+          mListView.setVisibility(View.INVISIBLE);
         }
       }
     });
@@ -196,12 +180,19 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     mListView = (ListView) findViewById(R.id.mListView);
 
     mTextViewProDesc = (TextView) findViewById(R.id.mTextViewProDesc);
+    mTextViewProDesc.setTypeface(getFontFamily(MainActivity.this, "Arial-Bold.ttf"));
 
     mImageEditProduct = (ImageView) findViewById(R.id.mImageEditProduct);
 
     mEditTextQuantity.setOnFocusChangeListener(this);
+    mEditTextQuantity.setTypeface(getFontFamily(MainActivity.this, "Quicksand-Regular.ttf"));
+
     mEditTextInventory.setOnFocusChangeListener(this);
+    mEditTextInventory.setTypeface(getFontFamily(MainActivity.this, "Quicksand-Regular.ttf"));
+
     mEditTextScanNumber.setOnFocusChangeListener(this);
+    mEditTextScanNumber.setTypeface(getFontFamily(MainActivity.this, "Arial-Regular.ttf"));
+
     mButtonScan.setOnFocusChangeListener(this);
 
     openDB("Database");
@@ -211,13 +202,17 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
 
     mInputMethodManager = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
     mFragmentManager = getSupportFragmentManager();
+    setActionBarFontFamily(MainActivity.this, "Quicksand-Bold.ttf");
+    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#e6e6e6")));
 
+    // setting unconnect
+    getSupportActionBar().setIcon(R.drawable.ic_unconnect);
   }
 
   private void loadActivityTitle() {
     String companyName = mSharedPreferences.getString("COMPANYNAME", "");
     String branchNumber = mSharedPreferences.getString("BRANCHNUMBER", "");
-    getSupportActionBar().setTitle(companyName + " - " + branchNumber);
+    getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>" + companyName + " - " + branchNumber + "</font>"));
   }
 
   private String getScanNumber() { return "" + mEditTextScanNumber.getText().toString().trim(); }
@@ -319,40 +314,21 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   public void onFocusChange(View v, boolean hasFocus) {
     if (!hasFocus) {
       switch (v.getId()) {
-        case R.id.mEditTextQuantity:
+        case R.id.mEditTextQuantity :
           if (getQuantity().equals("")) {
             mEditTextQuantity.setText("0");
           }
-          break;
-        case R.id.mEditTextInventory:
+        break;
+
+        case R.id.mEditTextInventory :
           if (getInventory().equals("")) {
             mEditTextInventory.setText("0");
           }
-          break;
-        case R.id.mEditTextScanNumber:
-          // According scanNumber display :
-          // "" :  please Scan to get ProDesc ,
-          // query result != -1 : ProductName
-          // query result == -1 :new Product
-          mTextViewProDesc.setText("New Products");
-          mImageEditProduct.setVisibility(View.INVISIBLE);
-          // query scanNumber From Product table && display result
-          if (!getScanNumber().equals("")) {
-            int selectIndex = searchProID(getScanNumber(), M_TABLE_PRODUCTCODE, mSQLiteDatabaseRead);
-            if ( -1 != selectIndex) {
-              try {
-                mJSONObject = searchOneOfProductData(selectIndex, M_TABLE_PRODUCRS, mSQLiteDatabaseRead);
-                String ProDesc = mJSONObject.get("ProDesc").toString().trim();
-                mTextViewProDesc.setText(ProDesc);
-                mImageEditProduct.setVisibility(View.VISIBLE);
-              }catch (JSONException e) {
-                e.printStackTrace();
-              }
-            }
-          }else if (getScanNumber().equals("")){
-            mTextViewProDesc.setText("please Scan to get ProDesc");
-          }
-          break;
+        break;
+
+        case R.id.mEditTextScanNumber :
+          setEditProductView();
+        break;
       }
     } else {
       if (R.id.mButtonScan == v.getId()) {
@@ -365,7 +341,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
   class ListAdapter extends BaseAdapter {
     @Override
     public int getCount() {
-      return mLinkedList.size();
+      return mLinkedList.size() >= 4 ? 4 : mLinkedList.size();
     }
 
     @Override
@@ -398,6 +374,10 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
           fragmentTransaction.commit();
         }
       });
+
+      if (position %2 == 1) {
+       convertView.setBackgroundColor(Color.parseColor("#e6e6e6"));
+      }
       return convertView;
     }
   }
@@ -421,7 +401,7 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
       break;
 
       case R.id.action_download :
-        if (! checkInternetConnect(MainActivity.this)) {
+        if (!checkInternetConnect(MainActivity.this)) {
           promptMessage("NetWork", "Not Found NetWork", MainActivity.this);
         }else {
           final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -615,22 +595,39 @@ public class MainActivity extends ActionBarActivity implements View.OnFocusChang
     }
   }
 
-  private void hideUI() {
-    mEditTextScanNumber.setVisibility(View.INVISIBLE);
-    mEditTextQuantity.setVisibility(View.INVISIBLE);
-    mEditTextInventory.setVisibility(View.INVISIBLE);
-    mImageEditProduct.setVisibility(View.INVISIBLE);
-    mButtonScan.setVisibility(View.INVISIBLE);
-    mTextViewProDesc.setVisibility(View.INVISIBLE);
-    mListView.setVisibility(View.INVISIBLE);
+  private void setUIWidgetEnable(boolean enable) {
+    mEditTextScanNumber.setEnabled(enable);
+    mImageEditProduct.setEnabled(enable);
+    mEditTextQuantity.setEnabled(enable);
+    mEditTextInventory.setEnabled(enable);
+    mButtonScan.setEnabled(enable);
+    mListView.setEnabled(enable);
   }
-  private void showUI() {
-    mEditTextScanNumber.setVisibility(View.VISIBLE);
-    mEditTextQuantity.setVisibility(View.VISIBLE);
-    mEditTextInventory.setVisibility(View.VISIBLE);
-    mImageEditProduct.setVisibility(View.VISIBLE);
-    mButtonScan.setVisibility(View.VISIBLE);
-    mTextViewProDesc.setVisibility(View.VISIBLE);
-    mListView.setVisibility(View.VISIBLE);
+
+
+  /**
+   * query scanNumber from Product table && according result to display View
+   * result == "" , please Scan to get ProDesc ,
+   * result != -1 , ProductName
+   * result == -1 , new Product
+   */
+  private void setEditProductView() {
+    mTextViewProDesc.setText("New Products");
+    mImageEditProduct.setVisibility(View.INVISIBLE);
+    if (!getScanNumber().equals("")) {
+      int selectIndex = searchProID(getScanNumber(), M_TABLE_PRODUCTCODE, mSQLiteDatabaseRead);
+      if (-1 != selectIndex) {
+        try {
+          mJSONObject = searchOneOfProductData(selectIndex, M_TABLE_PRODUCRS, mSQLiteDatabaseRead);
+          String ProDesc = mJSONObject.get("ProDesc").toString().trim();
+          mTextViewProDesc.setText(ProDesc);
+          mImageEditProduct.setVisibility(View.VISIBLE);
+        }catch (JSONException e) {
+          e.printStackTrace();
+        }
+      }
+    }else if (getScanNumber().equals("")){
+      mTextViewProDesc.setText("please Scan to get ProDesc");
+    }
   }
 }

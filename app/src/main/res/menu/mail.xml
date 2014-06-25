@@ -3,6 +3,6 @@
     <item
         android:id="@+id/action_revert"
         android:title="Revert"
-        android:icon="@android:drawable/ic_menu_revert"
+        android:icon="@drawable/ic_back"
         EZRestock:showAsAction="ifRoom" />
 </menu>

@@ -7,14 +7,18 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.util.TypedValue;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
@@ -46,6 +50,7 @@ final public class Utils {
         String regex = "^[a-zA-Z0-9_\u4e00-\u9fa5]+$";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(str);
+        Log.v("matcher result = ", "" + matcher.matches());
         return matcher.matches();
     }
 
@@ -211,4 +216,23 @@ final public class Utils {
   public static DBHelper getSQLiteDatabaseInsrance() {
     return mDBHelper;
   }
+
+  public static void setActionBarFontFamily(Activity activity, String ttf) {
+    int actionBarTitle = Resources.getSystem().getIdentifier("action_bar_title", "id", "android");
+    TextView actionBarTitleView = (TextView) activity.getWindow().findViewById(actionBarTitle);
+    actionBarTitleView.setTextSize(TypedValue.COMPLEX_UNIT_PX, 40);
+    Typeface Quicksand = getFontFamily(activity, ttf);
+    if (Quicksand != null && actionBarTitleView != null) {
+      actionBarTitleView.setTypeface(Quicksand);
+    }
+  }
+  /*
+  public static Typeface getFontFamilyOfQuicksandBold(Activity activity) {
+    return  Typeface.createFromAsset(activity.getAssets(), "Quicksand-Bold.ttf");
+  }*/
+  public static Typeface getFontFamily(Activity activity, String ttf) {
+    Typeface typeface = Typeface.createFromAsset(activity.getAssets(), ttf);
+    return typeface != null ? typeface : null;
+  }
+
 }

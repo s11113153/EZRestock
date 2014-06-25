@@ -1,24 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical" >
+    android:layout_height="wrap_content"
+    android:layout_marginLeft="10dp"
+    android:layout_marginRight="10dp">
+    <LinearLayout
+        android:layout_marginTop="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="#ffffff"/>
     <SlidingDrawer
+        android:layout_marginTop="15dp"
         android:id="@+id/mSlidingDrawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="400dp"
         android:handle="@+id/mImageViewSlidingUp"
         android:content="@+id/mListView">
         <ListView
-            android:id="@id/mListView"
+            android:id="@+id/mListView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
         <ImageView
-            android:paddingBottom="10dp"
             android:id="@id/mImageViewSlidingUp"
-            android:src="@drawable/bg_sliding_up"
-            android:layout_width="45dp"
-            android:layout_height="45dp"/>
+            android:src="@android:drawable/arrow_up_float"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
     </SlidingDrawer>
-</LinearLayout>
+</RelativeLayout>

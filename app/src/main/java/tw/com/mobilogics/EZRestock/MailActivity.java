@@ -3,10 +3,13 @@ package tw.com.mobilogics.EZRestock;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.text.util.Linkify;
 import android.util.Log;
 import android.view.Menu;
@@ -14,7 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +30,7 @@ import static tw.com.mobilogics.EZRestock.Utils.createEZRestockCachedFile;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockDir;
 import static tw.com.mobilogics.EZRestock.Utils.getDateTime;
 import static tw.com.mobilogics.EZRestock.Utils.promptMessage;
+import static tw.com.mobilogics.EZRestock.Utils.setActionBarFontFamily;
 import static tw.com.mobilogics.EZRestock.Utils.strFilter;
 import static tw.com.mobilogics.EZRestock.Utils.createEZRestockFile;
 import static tw.com.mobilogics.EZRestock.Utils.writeEZRestockFile;
@@ -45,7 +49,9 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
 
   private Button mButtonMail = null;
 
-  private TextView mTextViewVisitHome = null;
+  //private TextView mTextViewVisitHome = null;
+
+  private ImageView mImageViewVisitHome = null;
 
   private SharedPreferences mSharedPreferences = null;
 
@@ -81,11 +87,19 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
     mEditTextReceiveMail  = (EditText) findViewById(R.id.mEditTextReceiveMail);
     mButtonSave = (Button) findViewById(R.id.mButtonSave);
     mButtonMail = (Button) findViewById(R.id.mButtonMail);
-    mTextViewVisitHome = (TextView) findViewById(R.id.mTextViewVisitHome);
+    mImageViewVisitHome = (ImageView) findViewById(R.id.mImageViewVisitHome);
 
-    mTextViewVisitHome.setOnClickListener(this);
+    mImageViewVisitHome.setOnClickListener(this);
     mButtonSave.setOnClickListener(this);
     mButtonMail.setOnClickListener(this);
+
+    //setting ActionBar
+    setActionBarFontFamily(MailActivity.this, "Quicksand-Bold.ttf");
+    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#e6e6e6")));
+    getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Mail</font>"));
+
+    // setting unconnect
+    getSupportActionBar().setIcon(R.drawable.ic_unconnect);
   }
 
   private String getCompanyName()  { return "" + mEditTextCompanyName.getText().toString().trim();  }
@@ -203,7 +217,7 @@ public class MailActivity extends ActionBarActivity implements View.OnClickListe
         }
         break;
 
-      case R.id.mTextViewVisitHome:
+      case R.id.mImageViewVisitHome:
         if (checkInternetConnect(MailActivity.this)) {
           Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
           startActivity(intent);

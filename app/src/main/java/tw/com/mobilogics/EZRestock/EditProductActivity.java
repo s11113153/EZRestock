@@ -4,8 +4,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -13,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import static tw.com.mobilogics.EZRestock.Utils.IsSmallerScreen;
+import static tw.com.mobilogics.EZRestock.Utils.setActionBarFontFamily;
 
 public class EditProductActivity extends ActionBarActivity {
   private EditText mEditTextProCode = null;
@@ -30,7 +34,7 @@ public class EditProductActivity extends ActionBarActivity {
     if (IsSmallerScreen(EditProductActivity.this)) {
       setContentView(R.layout.activity_edit_product_smaller);
     }else {
-      // not worker
+      setContentView(R.layout.activity_edit_product);
     }
     initial();
 
@@ -58,6 +62,12 @@ public class EditProductActivity extends ActionBarActivity {
     mEditTextProUnitL = (EditText) findViewById(R.id.mEditTextProUnitL);
     mEditTextPackageQ = (EditText) findViewById(R.id.mEditTextPackageQ);
     mEditTextSupCope = (EditText) findViewById(R.id.mEditTextSupCope);
+
+    setActionBarFontFamily(EditProductActivity.this, "Quicksand-Bold.ttf");
+    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#e6e6e6")));
+    getSupportActionBar().setTitle(Html.fromHtml("<font color='#000000'>Product</font>"));
+    getSupportActionBar().setIcon(R.drawable.ic_unconnect);
+
   }
 
   @Override

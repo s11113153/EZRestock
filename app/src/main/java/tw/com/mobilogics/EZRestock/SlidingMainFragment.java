@@ -3,11 +3,12 @@ package tw.com.mobilogics.EZRestock;
 import org.json.JSONObject;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -15,7 +16,6 @@ import android.widget.SlidingDrawer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.lang.annotation.Annotation;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class SlidingMainFragment extends android.support.v4.app.Fragment {
 
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View v = inflater.inflate(R.layout.fragment_sliding_main_smaller, container, false);
+    View v = inflater.inflate(R.layout.fragment_sliding_main, container, false);
     mListView = (ListView) v.findViewById(R.id.mListView);
     mSlidingDrawer = (SlidingDrawer) v.findViewById(R.id.mSlidingDrawer);
     mImageViewSlidingUp = (ImageView)v.findViewById(R.id.mImageViewSlidingUp);
@@ -84,16 +84,22 @@ public class SlidingMainFragment extends android.support.v4.app.Fragment {
             }
           }
         });
+
+        if (position %2 == 1) {
+          convertView.setBackgroundColor(Color.parseColor("#e6e6e6"));
+        }
+
         return convertView;
       }
     });
+
 
     mSlidingDrawer.animateOpen();
 
     mSlidingDrawer.setOnDrawerOpenListener(new SlidingDrawer.OnDrawerOpenListener() {
       @Override
       public void onDrawerOpened() {
-        mImageViewSlidingUp.setImageResource(R.drawable.bg_sliding_down);
+        mImageViewSlidingUp.setImageResource(android.R.drawable.arrow_down_float);
       }
     });
 
